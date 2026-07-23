@@ -1,0 +1,53 @@
+# MCQ bank used for the pre- and post-session learning-effectiveness quiz
+# (FYP objective 4). Same question set is used pre and post so scores are
+# directly comparable.
+
+- id: q1
+  question: "Which port is most commonly associated with the insecure, unencrypted Telnet service?"
+  options: ["21", "22", "23", "554"]
+  answer_index: 2
+
+- id: q2
+  question: "Why is 'admin/admin' considered a security risk on an IoT camera?"
+  options:
+    - "It uses too much memory"
+    - "It is a weak, widely-known default credential attackers try first"
+    - "It slows down the boot process"
+    - "It is not actually a risk"
+  answer_index: 1
+
+- id: q3
+  question: "What does RTSP stand for in the context of IP cameras?"
+  options:
+    - "Real Time Streaming Protocol"
+    - "Remote Terminal Security Protocol"
+    - "Router Traffic Shaping Protocol"
+    - "Rapid Transfer Session Protocol"
+  answer_index: 0
+
+- id: q4
+  question: "Which OWASP IoT Top 10 category best describes an unauthenticated snapshot/image endpoint on a camera's web interface?"
+  options:
+    - "Insecure Ecosystem Interfaces"
+    - "Physical Hardening"
+    - "Lack of Device Management"
+    - "Insufficient Privacy Protection"
+  answer_index: 0
+
+- id: q5
+  question: "What is the main purpose of the reconnaissance phase in a penetration test?"
+  options:
+    - "To exploit vulnerabilities immediately"
+    - "To write the final report"
+    - "To discover live hosts and the services/ports they expose"
+    - "To patch discovered vulnerabilities"
+  answer_index: 2
+
+- id: q6
+  question: "Which of these is the strongest mitigation for insecure network services like Telnet?"
+  options:
+    - "Change the default wallpaper"
+    - "Disable the service or replace it with an encrypted equivalent (e.g. SSH)"
+    - "Rename the device"
+    - "Increase the video resolution"
+  answer_index: 1

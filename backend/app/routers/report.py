@@ -1,0 +1,33 @@
+from fastapi import APIRouter, Depends, Response
+from sqlalchemy.orm import Session as DBSession
+
+from app.content_loader import load_yaml
+from app.database import get_db
+from app.deps import get_session_or_404
+from app.models import Finding, QuizAttempt
+from app.services.pdf_report import generate_report
+
+router = APIRouter(prefix="/api/sessions", tags=["report"])
+
+STAGES = load_yaml("stages.yaml")
+
+
+@router.get("/{session_id}/report/explanation")
+def report_explanation():
+    return STAGES["report"]
+
+
+@router.get("/{session_id}/report")
+def get_report(session_id: int, db: DBSession = Depends(get_db)):
+    session = get_session_or_404(session_id, db)
+    severity_rank = {"High": 0, "Medium": 1, "Low": 2}
+    findings = db.query(Finding).filter_by(session_id=session.id).all()
+    findings.sort(key=lambda f: severity_rank.get(f.severity, 3))
+    quiz_attempts = db.query(QuizAttempt).filter_by(session_id=session.id).order_by(QuizAttempt.created_at).all()
+
+    pdf_bytes = generate_report(session, findings, quiz_attempts)
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="eduvapt_report_session_{session.id}.pdf"'},
+    )

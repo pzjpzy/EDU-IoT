@@ -1,0 +1,63 @@
+# Guided explanation copy shown in the UI alongside each stage's live results.
+# Kept as data (not code) so wording can be tuned without touching Python.
+
+recon:
+  title: "Stage 1 - Reconnaissance"
+  what: >
+    Reconnaissance is the first phase of any penetration test. Before you can
+    assess a device's security, you first need to find out that it exists on
+    the network, and which services it exposes.
+  why: >
+    Attackers (and testers) can't attack what they can't see. Host discovery
+    (finding live devices) and port/service scanning (finding what those
+    devices are running) tell us where to focus the rest of the assessment.
+  what_the_tool_does: >
+    This step uses Scapy to send ARP requests on the local network segment to
+    discover live hosts, then uses Nmap (TCP connect scan, top 100 ports,
+    service/version detection) against your chosen target IP to enumerate
+    open ports and identify running services.
+
+vuln:
+  title: "Stage 2 - Vulnerability Identification"
+  what: >
+    Vulnerability identification takes the raw facts gathered during recon
+    (open ports, service banners, response behaviour) and matches them
+    against known categories of IoT weakness.
+  why: >
+    A port being open isn't inherently a vulnerability - it's a fact. Turning
+    facts into findings is the analytical step that separates a scanner from
+    an assessment.
+  what_the_tool_does: >
+    This step runs your recon data through a rule engine that maps specific
+    conditions (e.g. Telnet open, an admin panel present, a live-view
+    endpoint reachable) to the OWASP IoT Top 10 categories this project
+    focuses on, with a severity rating and evidence for each.
+
+exploit:
+  title: "Stage 3 - Guided Exploitation"
+  what: >
+    Exploitation is where a tester attempts to actually demonstrate that a
+    suspected weakness is real and impactful, not just theoretical.
+  why: >
+    Confirming exploitability is what turns a "maybe" into an actionable,
+    evidence-backed finding for a report - it's the difference between
+    "port 23 is open" and "we logged into this device using admin/admin".
+  what_the_tool_does: >
+    This step tries a small, visible list of commonly-used default
+    credentials against any admin login and Telnet service found during
+    recon, and separately checks whether the camera's live snapshot can be
+    reached without logging in at all (a broken access control check). Every
+    attempt is shown to you as it happens.
+
+report:
+  title: "Stage 4 - Reporting"
+  what: >
+    A penetration test is only useful if its results are communicated
+    clearly to the people who need to act on them.
+  why: >
+    Real-world reports translate technical findings into risk and
+    remediation guidance a non-specialist stakeholder can act on.
+  what_the_tool_does: >
+    This step compiles everything discovered in this session - findings,
+    OWASP IoT mapping, severity, and mitigation guidance - into a downloadable
+    PDF report.

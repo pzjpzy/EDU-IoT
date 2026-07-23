@@ -1,0 +1,13 @@
+# For local build/testing only (outside GNS3). Publishes the container's
+# real ports directly onto localhost so EduVAPT-IoT's backend, with its
+# default config, can scan http://127.0.0.1 exactly as if it were a device
+# on the lab network. For the actual GNS3 lab, import the image built here
+# as a Docker node template instead - see docs/gns3_setup.md.
+services:
+  camera:
+    build: .
+    container_name: eduvapt-camera
+    ports:
+      - "80:80"
+      - "23:23"
+      - "554:554"

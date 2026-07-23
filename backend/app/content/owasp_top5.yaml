@@ -1,0 +1,56 @@
+# The 5 OWASP IoT Top 10 (2018) categories this project focuses on, per
+# objective 3 of the FYP brief. Each has student-friendly copy plus
+# mitigation guidance used to build both the UI findings and the PDF report.
+
+I1:
+  title: "Weak, Guessable, or Hardcoded Passwords"
+  description: >
+    The device accepts easily guessable, publicly known, or unchangeable
+    credentials, including backdoors in firmware or client software.
+  mitigation: >
+    Force a unique strong password on first setup, disable or remove any
+    hardcoded/backdoor accounts, and support account lockout or rate-limiting
+    on login attempts.
+
+I2:
+  title: "Insecure Network Services"
+  description: >
+    Unnecessary or insecure network services running on the device itself,
+    especially ones exposed to the wider network, can expose data or allow
+    unauthorised remote control.
+  mitigation: >
+    Disable unused services (e.g. Telnet), replace plaintext protocols with
+    encrypted equivalents (e.g. SSH instead of Telnet, HTTPS/RTSPS instead of
+    HTTP/RTSP), and restrict exposed services to a trusted management network.
+
+I3:
+  title: "Insecure Ecosystem Interfaces"
+  description: >
+    Insecure web, backend API, cloud, or mobile interfaces in the wider
+    device ecosystem that allow compromise of the device or its data, often
+    via weak authentication/authorisation or lack of encryption.
+  mitigation: >
+    Require authentication on every interface (including media/snapshot
+    endpoints), apply the same password/lockout policy across all
+    interfaces, and use encrypted transport end-to-end.
+
+I5:
+  title: "Use of Insecure or Outdated Components"
+  description: >
+    Use of deprecated or insecure software components/libraries, or use of
+    third-party components from a compromised supply chain, that could allow
+    the device to be compromised.
+  mitigation: >
+    Keep firmware and bundled software components patched and up to date,
+    remove or replace end-of-life components, and monitor vendor security
+    advisories.
+
+I9:
+  title: "Insecure Default Settings"
+  description: >
+    Devices shipped with insecure default settings, or that lack the ability
+    for administrators to modify configurations to be more secure.
+  mitigation: >
+    Ship devices with secure-by-default configurations (services disabled
+    unless needed, forced credential change on first boot), and give
+    administrators clear controls to harden the configuration further.
