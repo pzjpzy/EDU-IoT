@@ -1,5 +1,5 @@
 import datetime
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
@@ -27,38 +27,6 @@ class FindingOut(BaseModel):
     severity: str
     evidence: str
     mitigation: str
-
-
-class ExploitAttemptOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    service: str
-    username: Optional[str] = None
-    password: Optional[str] = None
-    success: bool
-    note: Optional[str] = None
-
-
-class ReconResponse(BaseModel):
-    stage: str = "recon"
-    explanation: dict[str, Any]
-    hosts_discovered: list[str]
-    discovery_method: str
-    warning: Optional[str] = None
-    ports: list[dict[str, Any]]
-
-
-class VulnResponse(BaseModel):
-    stage: str = "vuln"
-    explanation: dict[str, Any]
-    findings: list[FindingOut]
-
-
-class ExploitResponse(BaseModel):
-    stage: str = "exploit"
-    explanation: dict[str, Any]
-    attempts: list[ExploitAttemptOut]
 
 
 class QuizAnswer(BaseModel):

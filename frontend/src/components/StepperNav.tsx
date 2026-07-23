@@ -1,4 +1,4 @@
-const STEPS = ['Pre-Quiz', 'Recon', 'Vulnerability ID', 'Exploitation', 'Report', 'Post-Quiz']
+const STEPS = ['Pre-Quiz', 'Challenges', 'Report', 'Post-Quiz']
 
 export default function StepperNav({ current }: { current: number }) {
   return (

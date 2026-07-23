@@ -1,20 +1,19 @@
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session as DBSession
 
-from app.content_loader import load_yaml
 from app.database import get_db
 from app.deps import get_session_or_404
 from app.models import Finding, QuizAttempt
+from app.schemas import FindingOut
 from app.services.pdf_report import generate_report
 
 router = APIRouter(prefix="/api/sessions", tags=["report"])
 
-STAGES = load_yaml("stages.yaml")
 
-
-@router.get("/{session_id}/report/explanation")
-def report_explanation():
-    return STAGES["report"]
+@router.get("/{session_id}/findings", response_model=list[FindingOut])
+def get_findings(session_id: int, db: DBSession = Depends(get_db)):
+    session = get_session_or_404(session_id, db)
+    return db.query(Finding).filter_by(session_id=session.id).all()
 
 
 @router.get("/{session_id}/report")

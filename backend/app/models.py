@@ -24,28 +24,27 @@ class VaptSession(Base):
     target_ip = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
-    scan_results = relationship("ScanResult", back_populates="session", cascade="all, delete-orphan")
     findings = relationship("Finding", back_populates="session", cascade="all, delete-orphan")
-    exploit_attempts = relationship("ExploitAttempt", back_populates="session", cascade="all, delete-orphan")
+    task_progress = relationship("TaskProgress", back_populates="session", cascade="all, delete-orphan")
     quiz_attempts = relationship("QuizAttempt", back_populates="session", cascade="all, delete-orphan")
 
 
-class ScanResult(Base):
-    """Raw output captured at each guided stage (recon, etc.)."""
+class TaskProgress(Base):
+    """Per-session completion state for one entry in content/tasks.yaml."""
 
-    __tablename__ = "scan_results"
+    __tablename__ = "task_progress"
 
     id = Column(Integer, primary_key=True, index=True)
     session_id = Column(Integer, ForeignKey("sessions.id"), nullable=False)
-    stage = Column(String, nullable=False)  # e.g. "recon"
-    raw_json = Column(Text, nullable=False)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    task_id = Column(String, nullable=False)
+    completed = Column(Boolean, default=False)
+    completed_at = Column(DateTime, nullable=True)
 
-    session = relationship("VaptSession", back_populates="scan_results")
+    session = relationship("VaptSession", back_populates="task_progress")
 
 
 class Finding(Base):
-    """An OWASP-IoT-mapped vulnerability finding derived from scan data."""
+    """An OWASP-IoT-mapped vulnerability finding, created when a task completes."""
 
     __tablename__ = "findings"
 
@@ -59,23 +58,6 @@ class Finding(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     session = relationship("VaptSession", back_populates="findings")
-
-
-class ExploitAttempt(Base):
-    """A single guided exploitation attempt (credential try / access check)."""
-
-    __tablename__ = "exploit_attempts"
-
-    id = Column(Integer, primary_key=True, index=True)
-    session_id = Column(Integer, ForeignKey("sessions.id"), nullable=False)
-    service = Column(String, nullable=False)  # "http" | "telnet" | "snapshot"
-    username = Column(String, nullable=True)
-    password = Column(String, nullable=True)
-    success = Column(Boolean, default=False)
-    note = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
-
-    session = relationship("VaptSession", back_populates="exploit_attempts")
 
 
 class QuizAttempt(Base):

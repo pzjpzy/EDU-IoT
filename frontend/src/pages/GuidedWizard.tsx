@@ -4,17 +4,15 @@ import { api } from '../api/client'
 import type { QuizResult, StageExplanation, VaptSession } from '../api/types'
 import StepperNav from '../components/StepperNav'
 import QuizStep from '../components/steps/QuizStep'
-import ReconStep from '../components/steps/ReconStep'
-import VulnStep from '../components/steps/VulnStep'
-import ExploitStep from '../components/steps/ExploitStep'
+import TasksStep from '../components/steps/TasksStep'
 import ReportStep from '../components/steps/ReportStep'
 
 const REPORT_EXPLANATION: StageExplanation = {
-  title: 'Stage 4 - Reporting',
+  title: 'Stage 3 - Reporting',
   what: 'A penetration test is only useful if its results are communicated clearly to the people who need to act on them.',
   why: 'Real-world reports translate technical findings into risk and remediation guidance a non-specialist stakeholder can act on.',
   what_the_tool_does:
-    "This step compiles everything discovered in this session - findings, OWASP IoT mapping, severity, and mitigation guidance - into a downloadable PDF report.",
+    'This step compiles every task you completed - findings, OWASP IoT mapping, severity, and mitigation guidance - into a downloadable PDF report.',
 }
 
 export default function GuidedWizard() {
@@ -53,35 +51,28 @@ export default function GuidedWizard() {
         />
       )}
 
-      {step === 1 && <ReconStep sessionId={sessionId} onComplete={() => setStep(2)} />}
+      {step === 1 && session && (
+        <TasksStep sessionId={sessionId} targetIp={session.target_ip} onAllComplete={() => setStep(2)} />
+      )}
 
-      {step === 2 && <VulnStep sessionId={sessionId} onComplete={() => setStep(3)} />}
+      {step === 2 && (
+        <ReportStep sessionId={sessionId} explanation={REPORT_EXPLANATION} onComplete={() => setStep(3)} />
+      )}
 
-      {step === 3 && <ExploitStep sessionId={sessionId} onComplete={() => setStep(4)} />}
+      {step === 3 && (
+        <QuizStep sessionId={sessionId} phase="post" priorResult={preQuizResult} onComplete={() => setStep(4)} />
+      )}
 
       {step === 4 && (
-        <ReportStep sessionId={sessionId} explanation={REPORT_EXPLANATION} onComplete={() => setStep(5)} />
-      )}
-
-      {step === 5 && (
-        <QuizStep
-          sessionId={sessionId}
-          phase="post"
-          priorResult={preQuizResult}
-          onComplete={() => setStep(6)}
-        />
-      )}
-
-      {step === 6 && (
         <div className="rounded-lg border border-emerald-600/40 bg-emerald-500/10 p-8 text-center space-y-4">
           <h2 className="text-xl font-semibold text-emerald-300">Session complete</h2>
           <p className="text-slate-300">
-            You've completed the full guided VAPT walkthrough for this session, including the learning-effectiveness
-            quiz. You can revisit the report at any time.
+            You've worked through every task in this room using your own tools, and completed the
+            learning-effectiveness quiz. You can revisit the report at any time.
           </p>
           <div className="flex justify-center gap-3">
             <button
-              onClick={() => setStep(4)}
+              onClick={() => setStep(2)}
               className="rounded-md border border-slate-600 px-4 py-2 text-slate-300 hover:bg-slate-800"
             >
               Back to Report

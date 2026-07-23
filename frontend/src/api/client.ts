@@ -1,12 +1,12 @@
 import type {
-  ExploitResult,
+  CheckResult,
   Finding,
   QuizAnswer,
   QuizQuestion,
   QuizResult,
-  ReconResult,
+  SubmitResult,
+  TaskItem,
   VaptSession,
-  VulnResult,
 } from './types'
 
 const BASE_URL = import.meta.env.VITE_API_BASE ?? 'http://127.0.0.1:8000'
@@ -40,13 +40,16 @@ export const api = {
   getSession: (id: number) => request<VaptSession>(`/api/sessions/${id}`),
   deleteSession: (id: number) => fetch(`${BASE_URL}/api/sessions/${id}`, { method: 'DELETE' }),
 
-  runRecon: (id: number) => request<ReconResult>(`/api/sessions/${id}/recon`, { method: 'POST' }),
-  getRecon: (id: number) => request<ReconResult>(`/api/sessions/${id}/recon`),
+  listTasks: (id: number) => request<TaskItem[]>(`/api/sessions/${id}/tasks`),
+  checkTask: (id: number, taskId: string) =>
+    request<CheckResult>(`/api/sessions/${id}/tasks/${taskId}/check`, { method: 'POST' }),
+  submitTask: (id: number, taskId: string, answer: string) =>
+    request<SubmitResult>(`/api/sessions/${id}/tasks/${taskId}/submit`, {
+      method: 'POST',
+      body: JSON.stringify({ answer }),
+    }),
 
-  runVuln: (id: number) => request<VulnResult>(`/api/sessions/${id}/vuln`, { method: 'POST' }),
   getFindings: (id: number) => request<Finding[]>(`/api/sessions/${id}/findings`),
-
-  runExploit: (id: number) => request<ExploitResult>(`/api/sessions/${id}/exploit`, { method: 'POST' }),
 
   getQuizQuestions: () => request<QuizQuestion[]>('/api/quiz/questions'),
   submitQuiz: (id: number, phase: 'pre' | 'post', answers: QuizAnswer[]) =>
@@ -54,4 +57,8 @@ export const api = {
   getQuizResults: (id: number) => request<QuizResult[]>(`/api/sessions/${id}/quiz`),
 
   reportUrl: (id: number) => `${BASE_URL}/api/sessions/${id}/report`,
+}
+
+export function terminalWsUrl(): string {
+  return `${BASE_URL.replace(/^http/, 'ws')}/ws/terminal`
 }

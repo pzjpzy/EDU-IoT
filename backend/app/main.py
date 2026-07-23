@@ -2,17 +2,17 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, engine
-from app.routers import exploit, quiz, recon, report, sessions, vuln
+from app.routers import quiz, report, sessions, tasks, terminal
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="EduVAPT-IoT",
     description=(
-        "Guided and automated VAPT tool for teaching IoT/CCTV network security. "
+        "Guided, HTB-style VAPT lab for teaching IoT/CCTV network security. "
         "Only operates against targets within the configured lab scope."
     ),
-    version="0.1.0",
+    version="0.2.0",
 )
 
 app.add_middleware(
@@ -24,11 +24,10 @@ app.add_middleware(
 )
 
 app.include_router(sessions.router)
-app.include_router(recon.router)
-app.include_router(vuln.router)
-app.include_router(exploit.router)
+app.include_router(tasks.router)
 app.include_router(report.router)
 app.include_router(quiz.router)
+app.include_router(terminal.router)
 
 
 @app.get("/api/health")

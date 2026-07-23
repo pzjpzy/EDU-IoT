@@ -12,25 +12,6 @@ export interface StageExplanation {
   what_the_tool_does: string
 }
 
-export interface PortInfo {
-  port: number
-  protocol: string
-  state: string
-  service: string
-  product: string
-  version: string
-  banner: string
-}
-
-export interface ReconResult {
-  stage: 'recon'
-  explanation: StageExplanation
-  hosts_discovered: string[]
-  discovery_method: string
-  warning: string | null
-  ports: PortInfo[]
-}
-
 export interface Finding {
   id: number
   owasp_id: string
@@ -40,25 +21,25 @@ export interface Finding {
   mitigation: string
 }
 
-export interface VulnResult {
-  stage: 'vuln'
-  explanation: StageExplanation
-  findings: Finding[]
+export interface TaskItem {
+  id: string
+  title: string
+  type: 'auto' | 'submit'
+  prompt: string
+  hint: string | null
+  owasp_id: string
+  completed: boolean
+  locked: boolean
 }
 
-export interface ExploitAttempt {
-  id: number
-  service: string
-  username: string | null
-  password: string | null
-  success: boolean
-  note: string | null
+export interface CheckResult {
+  completed: boolean
+  error?: string
 }
 
-export interface ExploitResult {
-  stage: 'exploit'
-  explanation: StageExplanation
-  attempts: ExploitAttempt[]
+export interface SubmitResult {
+  correct: boolean
+  error?: string
 }
 
 export interface QuizQuestion {

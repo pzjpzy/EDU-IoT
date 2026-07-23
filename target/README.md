@@ -12,6 +12,28 @@ network** - every weakness below is intentional.
 | 23   | Telnet-style CLI (`telnet_stub.py`) | Plaintext credential prompt, default creds (`admin/admin`, `admin/1234`, `root/root`) | I1, I2 |
 | 554  | RTSP-style banner (`rtsp_stub.py`) | Responds to any client with no authentication; plaintext protocol | I2 |
 
+## Self-reporting for the HTB-style task board
+
+Students interact with this target directly using their own tools (nmap,
+browser, telnet client) - the EduVAPT-IoT app never scans or exploits it for
+them. To let the app auto-detect when a step is actually completed, three
+events are self-reported to an internal JSON file (`events.py`) and exposed
+at `GET /eduvapt/status` (polled by the backend, not linked from any
+student-facing page):
+
+| Event | Triggered by |
+|-------|--------------|
+| `http_default_login` | Successful `/login` with a default credential |
+| `unauth_snapshot_access` | `/snapshot.jpg` fetched without a valid session cookie |
+| `telnet_default_login` | Successful Telnet login with a default credential |
+
+Two flags are also embedded for the submission-style tasks:
+- `EDUVAPT{d3f4ult_cr3d5_4r3_d4ng3r0us}` - shown on `/live` after HTTP login
+- `EDUVAPT{t3ln3t_d3f4ult_cr3d5}` - shown after a successful Telnet login
+
+See `backend/app/content/tasks.yaml` for how these map to the guided task
+list.
+
 ## Running locally (for development/testing outside GNS3)
 
 ```bash
