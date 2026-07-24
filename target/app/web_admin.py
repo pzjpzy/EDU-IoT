@@ -1,31 +1,35 @@
-"""Intentionally vulnerable camera web admin panel.
+"""Camera web admin panel - vulnerable by default, but see vuln_config.py
+for how each weakness can be individually toggled off to build a
+partially-hardened variant of the same image (target-hardened/).
 
-This is the teaching target for EduVAPT-IoT, NOT a real product. Every
-weakness below is deliberate and documented in target/README.md:
+Possible weaknesses (each independently toggleable):
   - default, unchangeable credentials (OWASP I1)
   - a static, unsigned session cookie with no expiry (OWASP I1 / weak session mgmt)
   - the live snapshot is reachable with NO authentication at all (OWASP I3)
 
-It also self-reports which of those weaknesses a student has actually
-triggered via events.py, polled by the EduVAPT-IoT backend's task-progress
-checker at GET /eduvapt/status - see backend/app/services/task_engine.py.
+Also self-reports which weaknesses exist at all (GET /eduvapt/profile) and
+which have actually been triggered by a student (GET /eduvapt/status), so
+the EduVAPT-IoT backend's task board can adapt to whatever this specific
+target instance has enabled - see backend/app/services/task_engine.py.
 """
 import os
 
 from flask import Flask, Response, jsonify, redirect, request, send_file
 
 import events
+import vuln_config
 
 app = Flask(__name__)
 
 ASSET_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
-# Intentionally weak: a small set of well-known default credentials.
-VALID_CREDENTIALS = {
-    ("admin", "admin"),
-    ("admin", "1234"),
-    ("admin", "password"),
-}
+# Intentionally weak defaults when HTTP_DEFAULT_CREDS_VULNERABLE is on; a
+# single fixed strong credential (still usable, just not guessable) when off.
+VALID_CREDENTIALS = (
+    {("admin", "admin"), ("admin", "1234"), ("admin", "password")}
+    if vuln_config.HTTP_DEFAULT_CREDS_VULNERABLE
+    else {vuln_config.HARDENED_HTTP_CREDENTIAL}
+)
 
 FLAG_HTTP_LOGIN = "EDUVAPT{d3f4ult_cr3d5_4r3_d4ng3r0us}"
 
@@ -61,9 +65,12 @@ def login():
     username = request.form.get("username", "")
     password = request.form.get("password", "")
     if (username, password) in VALID_CREDENTIALS:
-        events.mark("http_default_login")
+        if vuln_config.HTTP_DEFAULT_CREDS_VULNERABLE:
+            events.mark("http_default_login")
         resp = redirect("/live")
-        # Intentionally weak: static, unsigned token, no expiry.
+        # Intentionally weak: static, unsigned token, no expiry (independent
+        # of the default-credentials toggle - this project doesn't offer a
+        # hardened session-management variant).
         resp.set_cookie("session", "authenticated")
         return resp
     return Response("Invalid credentials", status=401)
@@ -78,10 +85,14 @@ def live():
 
 @app.route("/snapshot.jpg")
 def snapshot():
-    # Intentional vulnerability: no auth check here at all, even though the
-    # /live page it's embedded in does check for a session cookie.
-    if request.cookies.get("session") != "authenticated":
-        events.mark("unauth_snapshot_access")
+    authenticated = request.cookies.get("session") == "authenticated"
+    if vuln_config.SNAPSHOT_UNAUTH_VULNERABLE:
+        # Intentional vulnerability: no auth check here at all, even though
+        # the /live page it's embedded in does check for a session cookie.
+        if not authenticated:
+            events.mark("unauth_snapshot_access")
+    elif not authenticated:
+        return Response("Unauthorized", status=401)
     return send_file(os.path.join(ASSET_DIR, "cctv_snapshot.jpg"), mimetype="image/jpeg")
 
 
@@ -95,6 +106,14 @@ def status():
 def reset():
     events.reset()
     return jsonify({"ok": True})
+
+
+@app.route("/eduvapt/profile")
+def profile():
+    """Internal-use only: declares which weaknesses THIS build has enabled,
+    so the backend can generate a challenge list and report matching this
+    specific target instance instead of assuming every weakness is present."""
+    return jsonify(vuln_config.profile())
 
 
 if __name__ == "__main__":

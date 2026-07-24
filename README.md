@@ -21,6 +21,11 @@ Final year project (FYP).
   RTSP-style banner service. Self-reports triggered vulnerabilities to the
   backend (`/eduvapt/status`) so tasks can auto-complete with no student
   input. Importable into GNS3 as a Docker node.
+- `target-hardened/` - A second target variant, built from the same
+  `target/app/` source with some weaknesses fixed (see its README). The
+  target self-declares which weaknesses it actually has via
+  `GET /eduvapt/profile`; the backend reads that to adapt the challenge
+  list and report to whatever's really present - no hardcoded assumptions.
 - `docs/gns3_setup.md` - How to wire the target into a GNS3 lab topology.
 
 The tool only ever lets a session target a configured lab IP range (loopback
@@ -47,6 +52,7 @@ target - the backend itself has no scanning dependencies.)
 **1. Start the simulated camera target**
 
 ```bash
+#Please change directory to the location of EDU-IoT first 
 cd target
 docker compose up --build -d
 ```
@@ -59,12 +65,15 @@ python -m venv .venv
 ./.venv/Scripts/activate   # Windows
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
+#if uvicorn is not working use line below
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000
 ```
 
 **3. Start the frontend**
 
 ```bash
 cd frontend
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
 npm install
 npm run dev
 ```

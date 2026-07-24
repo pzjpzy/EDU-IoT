@@ -16,7 +16,7 @@ class AnswerSubmit(BaseModel):
 @router.get("/{session_id}/tasks")
 def list_tasks(session_id: int, db: DBSession = Depends(get_db)):
     session = get_session_or_404(session_id, db)
-    return task_engine.get_task_list(db, session)
+    return task_engine.get_board(db, session)
 
 
 @router.post("/{session_id}/tasks/{task_id}/check")
@@ -26,6 +26,8 @@ def check_task(session_id: int, task_id: str, db: DBSession = Depends(get_db)):
         return task_engine.check_auto_task(db, session, task_id)
     except task_engine.TaskNotFoundError:
         raise HTTPException(status_code=404, detail=f"Unknown task '{task_id}'.")
+    except task_engine.TaskNotApplicableError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
     except task_engine.WrongTaskTypeError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 
@@ -37,5 +39,7 @@ def submit_task(session_id: int, task_id: str, payload: AnswerSubmit, db: DBSess
         return task_engine.submit_answer(db, session, task_id, payload.answer)
     except task_engine.TaskNotFoundError:
         raise HTTPException(status_code=404, detail=f"Unknown task '{task_id}'.")
+    except task_engine.TaskNotApplicableError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
     except task_engine.WrongTaskTypeError as exc:
         raise HTTPException(status_code=400, detail=str(exc))

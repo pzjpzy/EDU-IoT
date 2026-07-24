@@ -5,13 +5,24 @@
 #                     (see target/app/events.py), polled via check_event.
 #   - type: submit -> the student types an answer/flag, checked against
 #                     `answer` (case-insensitive, whitespace-trimmed).
-# Tasks unlock strictly in order, mirroring a guided step-by-step room.
-# owasp_id/finding_title/severity/evidence feed directly into the session's
-# findings list and the final PDF report.
+#
+# `requires` lists the target profile flags (see target/app/vuln_config.py
+# and backend/app/services/target_profile.py) that must ALL be true for a
+# task to apply to a given session's target at all - this is what lets the
+# same room adapt to a partially-hardened target (fewer/different weaknesses
+# present) instead of assuming every weakness always exists. An empty list
+# means the task always applies. Task numbering ("Task N - ...") is added
+# dynamically based on position in the FILTERED list, not written here,
+# since the filtered set (and therefore the numbering) differs per target.
+#
+# Tasks unlock strictly in order within the filtered set. owasp_id/
+# finding_title/severity/evidence feed directly into the session's findings
+# list and the final PDF report.
 
 - id: recon-telnet-port
-  title: "Task 1 - Find the exposed services"
+  title: "Find the exposed services"
   type: submit
+  requires: [telnet_enabled]
   prompt: >
     Use Nmap (or any port scanner) against the target IP to discover open
     TCP ports. What port number is the insecure Telnet service running on?
@@ -23,8 +34,9 @@
   evidence: "Confirmed by the student via port scan: 23/tcp open."
 
 - id: recon-rtsp-port
-  title: "Task 2 - Identify the video streaming service"
+  title: "Identify the video streaming service"
   type: submit
+  requires: [rtsp_enabled]
   prompt: >
     Looking at your scan results, which port is the RTSP-style video
     streaming service running on?
@@ -36,8 +48,9 @@
   evidence: "Confirmed by the student via port scan: 554/tcp open."
 
 - id: web-enum-login
-  title: "Task 3 - Enumerate the web admin interface"
+  title: "Enumerate the web admin interface"
   type: submit
+  requires: []
   prompt: >
     Browse to http://<target-ip>/ in your browser. What is the path of the
     admin login page?
@@ -49,8 +62,9 @@
   evidence: "Confirmed by the student: admin login page found at /login."
 
 - id: http-default-creds
-  title: "Task 4 - Log in with default credentials"
+  title: "Log in with default credentials"
   type: auto
+  requires: [http_default_creds_vulnerable]
   check_event: http_default_login
   prompt: >
     Try common default credentials (e.g. admin/admin) on the web admin
@@ -63,8 +77,9 @@
   evidence: "The target reported a successful login using default credentials."
 
 - id: http-flag
-  title: "Task 5 - Retrieve the flag from the live feed"
+  title: "Retrieve the flag from the live feed"
   type: submit
+  requires: [http_default_creds_vulnerable]
   prompt: >
     Now that you're logged in, find the flag shown on the live camera feed
     page and submit it here.
@@ -76,8 +91,9 @@
   evidence: "Student retrieved the flag embedded on the authenticated /live page."
 
 - id: unauth-snapshot
-  title: "Task 6 - Bypass authentication on the snapshot endpoint"
+  title: "Bypass authentication on the snapshot endpoint"
   type: auto
+  requires: [snapshot_unauth_vulnerable]
   check_event: unauth_snapshot_access
   prompt: >
     Without logging in (try a private/incognito browser window), browse
@@ -90,8 +106,9 @@
   evidence: "The target reported that /snapshot.jpg was accessed without a valid session."
 
 - id: telnet-default-creds
-  title: "Task 7 - Log into the Telnet service"
+  title: "Log into the Telnet service"
   type: auto
+  requires: [telnet_default_creds_vulnerable]
   check_event: telnet_default_login
   prompt: >
     Connect to port 23 with a Telnet/raw TCP client (e.g. PuTTY, ncat,
@@ -104,8 +121,9 @@
   evidence: "The target reported a successful Telnet login using default credentials."
 
 - id: telnet-flag
-  title: "Task 8 - Submit the Telnet flag"
+  title: "Submit the Telnet flag"
   type: submit
+  requires: [telnet_default_creds_vulnerable]
   prompt: >
     The Telnet CLI shows a flag once you log in. Submit it here.
   hint: "Look right after 'Welcome to IoT-Cam CLI'."
@@ -116,8 +134,9 @@
   evidence: "Student retrieved the flag shown after a successful Telnet login."
 
 - id: rtsp-banner
-  title: "Task 9 - Identify the RTSP server software"
+  title: "Identify the RTSP server software"
   type: submit
+  requires: [rtsp_enabled]
   prompt: >
     Connect to port 554 directly (e.g. with ncat) and send a bare RTSP
     OPTIONS request. What does the 'Server:' header say (product name only)?
@@ -129,14 +148,13 @@
   evidence: "Student identified the RTSP service banner: IoT-Cam-RTSP/1.0."
 
 - id: pattern-recognition
-  title: "Task 10 - Recognise the pattern"
+  title: "Recognise the pattern"
   type: auto
+  requires: []
   check_event: __all_previous_complete__
   prompt: >
-    You've now found several independent weaknesses, all stemming from the
-    same root cause: the device ships with everything turned on and nothing
-    hardened by default. This step completes automatically once you've
-    finished the tasks above.
+    You've now found the weaknesses this target actually has. This step
+    completes automatically once you've finished the tasks above.
   owasp_id: I9
   finding_title: "Device exposes network services with no visible hardening by default"
   severity: Low

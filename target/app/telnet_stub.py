@@ -21,12 +21,13 @@ import socket
 import threading
 
 import events
+import vuln_config
 
-VALID_CREDENTIALS = {
-    ("admin", "admin"),
-    ("admin", "1234"),
-    ("root", "root"),
-}
+VALID_CREDENTIALS = (
+    {("admin", "admin"), ("admin", "1234"), ("root", "root")}
+    if vuln_config.TELNET_DEFAULT_CREDS_VULNERABLE
+    else {vuln_config.HARDENED_TELNET_CREDENTIAL}
+)
 
 FLAG_TELNET_LOGIN = "EDUVAPT{t3ln3t_d3f4ult_cr3d5}"
 
@@ -73,7 +74,8 @@ def handle_client(conn: socket.socket) -> None:
         conn.sendall(b"Password: ")
         password = read_line(conn, echo_char=b"*")
         if (username, password) in VALID_CREDENTIALS:
-            events.mark("telnet_default_login")
+            if vuln_config.TELNET_DEFAULT_CREDS_VULNERABLE:
+                events.mark("telnet_default_login")
             conn.sendall(f"Welcome to IoT-Cam CLI\r\nFLAG: {FLAG_TELNET_LOGIN}\r\ncamera> ".encode())
         else:
             conn.sendall(b"Login incorrect\r\n")

@@ -34,6 +34,28 @@ Two flags are also embedded for the submission-style tasks:
 See `backend/app/content/tasks.yaml` for how these map to the guided task
 list.
 
+## Vulnerability toggles (for building variants of this same image)
+
+Every weakness above can be switched off independently via environment
+variables, read once at container start (`app/vuln_config.py`):
+
+| Variable | Default | Effect when set to `false` |
+|----------|---------|------------------------------|
+| `EDUVAPT_HTTP_DEFAULT_CREDS` | `true` | HTTP login only accepts a fixed strong credential instead of the default-creds list |
+| `EDUVAPT_SNAPSHOT_UNAUTH` | `true` | `/snapshot.jpg` requires a valid session cookie |
+| `EDUVAPT_TELNET_ENABLED` | `true` | Telnet service isn't started at all (port 23 closed) |
+| `EDUVAPT_TELNET_DEFAULT_CREDS` | `true` | Telnet only accepts a fixed strong credential instead of the default-creds list |
+| `EDUVAPT_RTSP_ENABLED` | `true` | RTSP-style service isn't started at all (port 554 closed) |
+
+The resulting configuration is declared at `GET /eduvapt/profile` (internal
+use, polled by the backend when it builds a session's challenge list and
+report - see `backend/app/services/target_profile.py`). This is how
+EduVAPT-IoT adapts to whichever target variant is actually running, instead
+of assuming every weakness is always present.
+
+See [`../target-hardened/`](../target-hardened/) for a ready-made
+partially-patched variant built from this same `app/` source.
+
 ## Running locally (for development/testing outside GNS3)
 
 ```bash

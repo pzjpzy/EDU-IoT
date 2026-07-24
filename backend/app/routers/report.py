@@ -5,6 +5,7 @@ from app.database import get_db
 from app.deps import get_session_or_404
 from app.models import Finding, QuizAttempt
 from app.schemas import FindingOut
+from app.services import task_engine
 from app.services.pdf_report import generate_report
 
 router = APIRouter(prefix="/api/sessions", tags=["report"])
@@ -23,8 +24,9 @@ def get_report(session_id: int, db: DBSession = Depends(get_db)):
     findings = db.query(Finding).filter_by(session_id=session.id).all()
     findings.sort(key=lambda f: severity_rank.get(f.severity, 3))
     quiz_attempts = db.query(QuizAttempt).filter_by(session_id=session.id).order_by(QuizAttempt.created_at).all()
+    not_applicable = task_engine.not_applicable_findings(session.target_ip)
 
-    pdf_bytes = generate_report(session, findings, quiz_attempts)
+    pdf_bytes = generate_report(session, findings, quiz_attempts, not_applicable)
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",

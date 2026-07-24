@@ -5,7 +5,7 @@ import type {
   QuizQuestion,
   QuizResult,
   SubmitResult,
-  TaskItem,
+  TaskBoard,
   VaptSession,
 } from './types'
 
@@ -40,7 +40,7 @@ export const api = {
   getSession: (id: number) => request<VaptSession>(`/api/sessions/${id}`),
   deleteSession: (id: number) => fetch(`${BASE_URL}/api/sessions/${id}`, { method: 'DELETE' }),
 
-  listTasks: (id: number) => request<TaskItem[]>(`/api/sessions/${id}/tasks`),
+  listTasks: (id: number) => request<TaskBoard>(`/api/sessions/${id}/tasks`),
   checkTask: (id: number, taskId: string) =>
     request<CheckResult>(`/api/sessions/${id}/tasks/${taskId}/check`, { method: 'POST' }),
   submitTask: (id: number, taskId: string, answer: string) =>

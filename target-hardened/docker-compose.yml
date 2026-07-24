@@ -1,0 +1,29 @@
+# Partially-hardened camera variant - built from the shared target/app
+# source (see Dockerfile) with some weaknesses fixed:
+#   - HTTP admin login: default creds FIXED (requires a strong credential)
+#   - Snapshot endpoint: now requires authentication (broken access control FIXED)
+#   - RTSP service: DISABLED entirely
+#   - Telnet: left AS-IS, still has default creds - so there's still
+#     something for a student to find, demonstrating partial remediation
+#     rather than a fully patched device.
+#
+# Uses the same ports (80/23/554) as ../target, so only run one of the two
+# camera containers at a time:
+#   docker compose -f target-hardened/docker-compose.yml up --build -d
+#   docker compose -f target-hardened/docker-compose.yml down
+services:
+  camera-hardened:
+    build:
+      context: ..
+      dockerfile: target-hardened/Dockerfile
+    container_name: eduvapt-camera-hardened
+    ports:
+      - "80:80"
+      - "23:23"
+      - "554:554"
+    environment:
+      EDUVAPT_HTTP_DEFAULT_CREDS: "false"
+      EDUVAPT_SNAPSHOT_UNAUTH: "false"
+      EDUVAPT_TELNET_ENABLED: "true"
+      EDUVAPT_TELNET_DEFAULT_CREDS: "true"
+      EDUVAPT_RTSP_ENABLED: "false"

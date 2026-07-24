@@ -22,7 +22,7 @@ _SEVERITY_COLOR = {
 }
 
 
-def generate_report(session, findings: list, quiz_attempts: list) -> bytes:
+def generate_report(session, findings: list, quiz_attempts: list, not_applicable: list | None = None) -> bytes:
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=2 * cm, bottomMargin=2 * cm)
     styles = getSampleStyleSheet()
@@ -72,6 +72,35 @@ def generate_report(session, findings: list, quiz_attempts: list) -> bytes:
         story.append(table)
 
     story.append(Spacer(1, 0.8 * cm))
+
+    if not_applicable:
+        story.append(Paragraph("Tested But Not Present On This Target", styles["Heading2"]))
+        story.append(
+            Paragraph(
+                "These OWASP IoT Top 5 categories were part of this assessment's scope but were not "
+                "exploitable on this specific target - either already remediated or not applicable to "
+                "this device configuration.",
+                body,
+            )
+        )
+        story.append(Spacer(1, 0.2 * cm))
+        na_data = [["OWASP IoT", "Weakness checked for"]]
+        for item in not_applicable:
+            na_data.append([Paragraph(item["owasp_id"], small), Paragraph(item["title"], small)])
+        na_table = Table(na_data, colWidths=[3 * cm, 13 * cm], repeatRows=1)
+        na_table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#2c3e50")),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                    ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#eef6ee")]),
+                ]
+            )
+        )
+        story.append(na_table)
+        story.append(Spacer(1, 0.8 * cm))
 
     if quiz_attempts:
         story.append(Paragraph("Learning Effectiveness (Pre/Post Quiz)", styles["Heading2"]))

@@ -3,6 +3,9 @@
 # default config, can scan http://127.0.0.1 exactly as if it were a device
 # on the lab network. For the actual GNS3 lab, import the image built here
 # as a Docker node template instead - see docs/gns3_setup.md.
+#
+# This is the fully-vulnerable preset. For a partially-hardened variant of
+# the same image (some weaknesses fixed), see ../target-hardened/.
 services:
   camera:
     build: .
@@ -11,3 +14,9 @@ services:
       - "80:80"
       - "23:23"
       - "554:554"
+    environment:
+      EDUVAPT_HTTP_DEFAULT_CREDS: "true"
+      EDUVAPT_SNAPSHOT_UNAUTH: "true"
+      EDUVAPT_TELNET_ENABLED: "true"
+      EDUVAPT_TELNET_DEFAULT_CREDS: "true"
+      EDUVAPT_RTSP_ENABLED: "true"

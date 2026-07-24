@@ -32,6 +32,20 @@ export interface TaskItem {
   locked: boolean
 }
 
+export interface TargetProfile {
+  http_default_creds_vulnerable: boolean
+  snapshot_unauth_vulnerable: boolean
+  telnet_enabled: boolean
+  telnet_default_creds_vulnerable: boolean
+  rtsp_enabled: boolean
+}
+
+export interface TaskBoard {
+  tasks: TaskItem[]
+  profile: TargetProfile
+  warning: string | null
+}
+
 export interface CheckResult {
   completed: boolean
   error?: string

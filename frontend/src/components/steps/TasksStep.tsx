@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api } from '../../api/client'
-import type { TaskItem } from '../../api/types'
+import type { TargetProfile, TaskItem } from '../../api/types'
 import TaskCard from '../TaskCard'
 import TerminalPanel from '../TerminalPanel'
 
@@ -10,13 +10,27 @@ interface Props {
   onAllComplete: () => void
 }
 
+const HARDENED_LABELS: Record<keyof TargetProfile, string> = {
+  http_default_creds_vulnerable: 'HTTP admin default credentials',
+  snapshot_unauth_vulnerable: 'Unauthenticated snapshot access',
+  telnet_enabled: 'Telnet service (disabled entirely)',
+  telnet_default_creds_vulnerable: 'Telnet default credentials',
+  rtsp_enabled: 'RTSP service (disabled entirely)',
+}
+
 export default function TasksStep({ sessionId, targetIp, onAllComplete }: Props) {
   const [tasks, setTasks] = useState<TaskItem[]>([])
+  const [profile, setProfile] = useState<TargetProfile | null>(null)
+  const [warning, setWarning] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [terminalOpen, setTerminalOpen] = useState(false)
 
   const reload = useCallback(() => {
-    return api.listTasks(sessionId).then(setTasks).catch(() => {})
+    return api.listTasks(sessionId).then((board) => {
+      setTasks(board.tasks)
+      setProfile(board.profile)
+      setWarning(board.warning)
+    })
   }, [sessionId])
 
   useEffect(() => {
@@ -24,7 +38,13 @@ export default function TasksStep({ sessionId, targetIp, onAllComplete }: Props)
   }, [reload])
 
   const completedCount = tasks.filter((t) => t.completed).length
-  const allComplete = tasks.length > 0 && completedCount === tasks.length
+  const allComplete = completedCount === tasks.length
+
+  const hardenedAgainst = profile
+    ? (Object.keys(HARDENED_LABELS) as (keyof TargetProfile)[])
+        .filter((key) => !profile[key] && !(key === 'telnet_default_creds_vulnerable' && !profile.telnet_enabled))
+        .map((key) => HARDENED_LABELS[key])
+    : []
 
   if (loading) return <p className="text-slate-400">Loading tasks...</p>
 
@@ -46,6 +66,15 @@ export default function TasksStep({ sessionId, targetIp, onAllComplete }: Props)
         </div>
       </div>
 
+      {warning && <p className="text-sm text-amber-400">{warning}</p>}
+
+      {!warning && hardenedAgainst.length > 0 && (
+        <div className="rounded-lg border border-emerald-600/40 bg-emerald-500/10 p-3 text-sm text-emerald-200">
+          This target has already been hardened against: {hardenedAgainst.join(', ')}. The challenge list below only
+          includes weaknesses this specific target actually has.
+        </div>
+      )}
+
       {terminalOpen && <TerminalPanel onClose={() => setTerminalOpen(false)} />}
 
       <div className="flex items-center gap-3">
@@ -64,6 +93,12 @@ export default function TasksStep({ sessionId, targetIp, onAllComplete }: Props)
         {tasks.map((task) => (
           <TaskCard key={task.id} task={task} sessionId={sessionId} onCompleted={reload} />
         ))}
+        {tasks.length === 0 && (
+          <p className="text-slate-500">
+            No applicable challenges were found for this target - it may be fully hardened, or its profile
+            couldn't be read.
+          </p>
+        )}
       </div>
 
       <button
