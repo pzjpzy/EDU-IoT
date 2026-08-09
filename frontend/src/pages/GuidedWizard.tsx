@@ -4,8 +4,17 @@ import { api } from '../api/client'
 import type { QuizResult, StageExplanation, VaptSession } from '../api/types'
 import StepperNav from '../components/StepperNav'
 import QuizStep from '../components/steps/QuizStep'
+import ReconStep from '../components/steps/ReconStep'
 import TasksStep from '../components/steps/TasksStep'
 import ReportStep from '../components/steps/ReportStep'
+
+const RECON_EXPLANATION: StageExplanation = {
+  title: 'Stage 1 - Automated Recon',
+  what: 'Reconnaissance is the first phase of any penetration test: discovering which services a target exposes before assessing them.',
+  why: 'A real assessor starts by mapping the attack surface. Seeing the tool do it automatically - and having each service explained - builds the mental model you then apply by hand.',
+  what_the_tool_does:
+    "This step runs an automated, lab-scoped port scan and protocol banner grab of the target, then explains each discovered service and how it maps to the OWASP IoT Top 5. You'll reproduce the key findings yourself in the challenges that follow.",
+}
 
 const REPORT_EXPLANATION: StageExplanation = {
   title: 'Stage 3 - Reporting',
@@ -52,18 +61,27 @@ export default function GuidedWizard() {
       )}
 
       {step === 1 && session && (
-        <TasksStep sessionId={sessionId} targetIp={session.target_ip} onAllComplete={() => setStep(2)} />
+        <ReconStep
+          sessionId={sessionId}
+          targetIp={session.target_ip}
+          explanation={RECON_EXPLANATION}
+          onComplete={() => setStep(2)}
+        />
       )}
 
-      {step === 2 && (
-        <ReportStep sessionId={sessionId} explanation={REPORT_EXPLANATION} onComplete={() => setStep(3)} />
+      {step === 2 && session && (
+        <TasksStep sessionId={sessionId} targetIp={session.target_ip} onAllComplete={() => setStep(3)} />
       )}
 
       {step === 3 && (
-        <QuizStep sessionId={sessionId} phase="post" priorResult={preQuizResult} onComplete={() => setStep(4)} />
+        <ReportStep sessionId={sessionId} explanation={REPORT_EXPLANATION} onComplete={() => setStep(4)} />
       )}
 
       {step === 4 && (
+        <QuizStep sessionId={sessionId} phase="post" priorResult={preQuizResult} onComplete={() => setStep(5)} />
+      )}
+
+      {step === 5 && (
         <div className="rounded-lg border border-emerald-600/40 bg-emerald-500/10 p-8 text-center space-y-4">
           <h2 className="text-xl font-semibold text-emerald-300">Session complete</h2>
           <p className="text-slate-300">
@@ -72,7 +90,7 @@ export default function GuidedWizard() {
           </p>
           <div className="flex justify-center gap-3">
             <button
-              onClick={() => setStep(2)}
+              onClick={() => setStep(3)}
               className="rounded-md border border-slate-600 px-4 py-2 text-slate-300 hover:bg-slate-800"
             >
               Back to Report

@@ -4,6 +4,7 @@ import type {
   QuizAnswer,
   QuizQuestion,
   QuizResult,
+  ScanResult,
   SubmitResult,
   TaskBoard,
   VaptSession,
@@ -39,6 +40,13 @@ export const api = {
     request<VaptSession>('/api/sessions', { method: 'POST', body: JSON.stringify({ name, target_ip }) }),
   getSession: (id: number) => request<VaptSession>(`/api/sessions/${id}`),
   deleteSession: (id: number) => fetch(`${BASE_URL}/api/sessions/${id}`, { method: 'DELETE' }),
+
+  runScan: (id: number, useScapy = false) =>
+    request<ScanResult>(`/api/sessions/${id}/scan`, {
+      method: 'POST',
+      body: JSON.stringify({ use_nmap: true, use_scapy: useScapy }),
+    }),
+  getScan: (id: number) => request<ScanResult>(`/api/sessions/${id}/scan`),
 
   listTasks: (id: number) => request<TaskBoard>(`/api/sessions/${id}/tasks`),
   checkTask: (id: number, taskId: string) =>

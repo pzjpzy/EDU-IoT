@@ -85,6 +85,7 @@ def get_board(db: DBSession, session: VaptSession) -> dict:
             "id": s["task"]["id"],
             "title": f"Task {i + 1} - {s['task']['title']}",
             "type": s["task"]["type"],
+            "concept": s["task"].get("concept"),
             "prompt": s["task"]["prompt"],
             "hint": s["task"].get("hint"),
             "owasp_id": s["task"]["owasp_id"],

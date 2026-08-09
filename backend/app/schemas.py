@@ -44,3 +44,30 @@ class QuizResult(BaseModel):
     score: int
     total: int
     breakdown: list[dict[str, Any]]
+
+
+class ScanService(BaseModel):
+    port: int
+    protocol: str
+    banner: str | None = None
+    version: str | None = None
+    owasp_id: str
+    severity_hint: str
+    observation: str
+    why_it_matters: str
+    reproduce: str
+
+
+class ScanResult(BaseModel):
+    target_ip: str
+    duration_seconds: float
+    ports_scanned: int
+    open_ports: list[int]
+    services: list[ScanService]
+    engine_notes: list[str]
+    summary: str
+
+
+class ScanRequest(BaseModel):
+    use_nmap: bool = True
+    use_scapy: bool = False

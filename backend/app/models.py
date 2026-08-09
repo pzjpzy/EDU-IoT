@@ -27,6 +27,7 @@ class VaptSession(Base):
     findings = relationship("Finding", back_populates="session", cascade="all, delete-orphan")
     task_progress = relationship("TaskProgress", back_populates="session", cascade="all, delete-orphan")
     quiz_attempts = relationship("QuizAttempt", back_populates="session", cascade="all, delete-orphan")
+    scan_runs = relationship("ScanRun", back_populates="session", cascade="all, delete-orphan")
 
 
 class TaskProgress(Base):
@@ -58,6 +59,29 @@ class Finding(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     session = relationship("VaptSession", back_populates="findings")
+
+
+class ScanRun(Base):
+    """One automated recon scan the tool ran against the session's target.
+
+    Kept as an audit trail (target + time + in-scope decision) so the
+    "authorised lab target only" claim is evidenced, and so the latest scan's
+    result can be folded into the PDF report. The full structured result is
+    stored as JSON rather than normalised, since it's only ever read back
+    whole for display/reporting.
+    """
+
+    __tablename__ = "scan_runs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(Integer, ForeignKey("sessions.id"), nullable=False)
+    target_ip = Column(String, nullable=False)
+    in_scope = Column(Boolean, nullable=False)
+    open_port_count = Column(Integer, nullable=False, default=0)
+    result_json = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    session = relationship("VaptSession", back_populates="scan_runs")
 
 
 class QuizAttempt(Base):

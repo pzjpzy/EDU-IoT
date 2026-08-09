@@ -10,6 +10,7 @@ interface Props {
 
 export default function TaskCard({ task, sessionId, onCompleted }: Props) {
   const [showHint, setShowHint] = useState(false)
+  const [showConcept, setShowConcept] = useState(false)
   const [answer, setAnswer] = useState('')
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
@@ -88,6 +89,21 @@ export default function TaskCard({ task, sessionId, onCompleted }: Props) {
 
       {!task.locked && (
         <>
+          {task.concept && (
+            <div className="rounded-md border border-slate-700 bg-slate-900/40 p-3">
+              <button
+                type="button"
+                onClick={() => setShowConcept((v) => !v)}
+                className="text-xs font-medium text-sky-400 hover:text-sky-300"
+              >
+                {showConcept ? 'Hide concept' : 'What is this? (concept)'}
+              </button>
+              {showConcept && (
+                <p className="mt-2 whitespace-pre-line text-xs leading-relaxed text-slate-400">{task.concept}</p>
+              )}
+            </div>
+          )}
+
           <p className="whitespace-pre-line text-sm text-slate-300">{task.prompt}</p>
 
           {task.hint && !task.completed && (

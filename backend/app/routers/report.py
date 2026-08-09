@@ -1,9 +1,11 @@
+import json
+
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session as DBSession
 
 from app.database import get_db
 from app.deps import get_session_or_404
-from app.models import Finding, QuizAttempt
+from app.models import Finding, QuizAttempt, ScanRun
 from app.schemas import FindingOut
 from app.services import task_engine
 from app.services.pdf_report import generate_report
@@ -26,7 +28,12 @@ def get_report(session_id: int, db: DBSession = Depends(get_db)):
     quiz_attempts = db.query(QuizAttempt).filter_by(session_id=session.id).order_by(QuizAttempt.created_at).all()
     not_applicable = task_engine.not_applicable_findings(session.target_ip)
 
-    pdf_bytes = generate_report(session, findings, quiz_attempts, not_applicable)
+    latest_scan_row = (
+        db.query(ScanRun).filter_by(session_id=session.id).order_by(ScanRun.created_at.desc()).first()
+    )
+    scan = json.loads(latest_scan_row.result_json) if latest_scan_row else None
+
+    pdf_bytes = generate_report(session, findings, quiz_attempts, not_applicable, scan)
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",

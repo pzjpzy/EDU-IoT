@@ -25,11 +25,34 @@ export interface TaskItem {
   id: string
   title: string
   type: 'auto' | 'submit'
+  concept: string | null
   prompt: string
   hint: string | null
   owasp_id: string
   completed: boolean
   locked: boolean
+}
+
+export interface ScanService {
+  port: number
+  protocol: string
+  banner: string | null
+  version: string | null
+  owasp_id: string
+  severity_hint: string
+  observation: string
+  why_it_matters: string
+  reproduce: string
+}
+
+export interface ScanResult {
+  target_ip: string
+  duration_seconds: number
+  ports_scanned: number
+  open_ports: number[]
+  services: ScanService[]
+  engine_notes: string[]
+  summary: string
 }
 
 export interface TargetProfile {

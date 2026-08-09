@@ -23,6 +23,13 @@
   title: "Find the exposed services"
   type: submit
   requires: [telnet_enabled]
+  concept: >
+    Reconnaissance is the first phase of any penetration test: before you can
+    assess a device you have to find out what it exposes. Port scanning sends
+    connection probes to a range of TCP ports and notes which ones respond,
+    revealing the services running on the target. The automated scan you just
+    ran did exactly this - now you'll reproduce one finding by hand so you
+    understand what the tool did on your behalf.
   prompt: >
     Use Nmap (or any port scanner) against the target IP to discover open
     TCP ports. What port number is the insecure Telnet service running on?
@@ -37,6 +44,11 @@
   title: "Identify the video streaming service"
   type: submit
   requires: [rtsp_enabled]
+  concept: >
+    IP cameras deliver their live video with a streaming protocol. RTSP (Real
+    Time Streaming Protocol) is the classic one, and it runs unencrypted by
+    default. Knowing which port carries the video stream tells an assessor
+    where the feed could be intercepted or accessed without authorisation.
   prompt: >
     Looking at your scan results, which port is the RTSP-style video
     streaming service running on?
@@ -51,6 +63,12 @@
   title: "Enumerate the web admin interface"
   type: submit
   requires: []
+  concept: >
+    Enumeration means mapping out an interface's structure - its pages,
+    endpoints, and entry points - before attacking it. The web admin panel is
+    the richest attack surface on most cameras, so finding the login page is
+    the doorway to everything that follows: credential attacks, unauthenticated
+    endpoints, and session handling.
   prompt: >
     Browse to http://<target-ip>/ in your browser. What is the path of the
     admin login page?
@@ -66,6 +84,13 @@
   type: auto
   requires: [http_default_creds_vulnerable]
   check_event: http_default_login
+  concept: >
+    Default credentials (admin/admin and friends) are the single most common
+    IoT weakness - OWASP IoT #1. Manufacturers ship devices with well-known
+    logins and users rarely change them, so an attacker can simply look up the
+    default and walk in. This is why the OWASP top weakness is "weak, guessable,
+    or hardcoded passwords". When you log in successfully, the target reports it
+    and this step completes on its own.
   prompt: >
     Try common default credentials (e.g. admin/admin) on the web admin
     login page. Once you log in successfully, this step updates
@@ -80,6 +105,12 @@
   title: "Retrieve the flag from the live feed"
   type: submit
   requires: [http_default_creds_vulnerable]
+  concept: >
+    Capturing a "flag" is how CTF-style labs prove you actually reached
+    protected content, not just guessed. Here the flag sits on the
+    authenticated live-feed page, so retrieving it demonstrates the concrete
+    impact of the default-credential weakness: full access to the camera's
+    video the moment the login falls.
   prompt: >
     Now that you're logged in, find the flag shown on the live camera feed
     page and submit it here.
@@ -95,6 +126,12 @@
   type: auto
   requires: [snapshot_unauth_vulnerable]
   check_event: unauth_snapshot_access
+  concept: >
+    Broken authorisation happens when one endpoint forgets to check the login
+    that its neighbours enforce. The live page checks your session, but the
+    image it embeds does not - so the video snapshot is reachable with no login
+    at all. This is an insecure ecosystem interface (OWASP IoT #3): the feed
+    leaks even though the "front door" looks locked.
   prompt: >
     Without logging in (try a private/incognito browser window), browse
     directly to http://<target-ip>/snapshot.jpg. If the image loads without
@@ -110,6 +147,12 @@
   type: auto
   requires: [telnet_default_creds_vulnerable]
   check_event: telnet_default_login
+  concept: >
+    The same default-credential weakness often exists on more than one service.
+    Telnet is worse than the web panel because it is also unencrypted, so the
+    password crosses the network in cleartext. Reusing default logins across an
+    insecure protocol is a textbook example of why legacy services should be
+    disabled entirely.
   prompt: >
     Connect to port 23 with a Telnet/raw TCP client (e.g. PuTTY, ncat,
     telnet) and try default credentials. This step updates automatically
@@ -124,6 +167,10 @@
   title: "Submit the Telnet flag"
   type: submit
   requires: [telnet_default_creds_vulnerable]
+  concept: >
+    As with the web flag, capturing the Telnet flag proves you truly obtained
+    an interactive session on the device - the level of access from which an
+    attacker could change settings, pivot, or disable the camera.
   prompt: >
     The Telnet CLI shows a flag once you log in. Submit it here.
   hint: "Look right after 'Welcome to IoT-Cam CLI'."
@@ -137,6 +184,13 @@
   title: "Identify the RTSP server software"
   type: submit
   requires: [rtsp_enabled]
+  concept: >
+    Banner grabbing reads the identifying string a service volunteers about
+    itself - its product name and often version. That fingerprint lets an
+    assessor look up known vulnerabilities (CVEs) for that exact software.
+    Exposing detailed version banners maps to OWASP IoT #5, "use of insecure or
+    outdated components", because it hands attackers the information they need
+    to find a matching exploit.
   prompt: >
     Connect to port 554 directly (e.g. with ncat) and send a bare RTSP
     OPTIONS request. What does the 'Server:' header say (product name only)?
@@ -152,6 +206,12 @@
   type: auto
   requires: []
   check_event: __all_previous_complete__
+  concept: >
+    Step back and notice the common thread: nearly every weakness you found
+    came from insecure defaults - default passwords, services left on, missing
+    auth checks that shipped that way. That's OWASP IoT #9, "insecure default
+    settings", and recognising this pattern is the real takeaway: harden the
+    defaults and most of the individual findings disappear at once.
   prompt: >
     You've now found the weaknesses this target actually has. This step
     completes automatically once you've finished the tasks above.

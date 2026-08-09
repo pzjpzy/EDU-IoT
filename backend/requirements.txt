@@ -6,3 +6,16 @@ reportlab>=4.2
 pyyaml>=6.0
 requests>=2.32
 pywinpty>=2.0; sys_platform == "win32"
+
+# --- Recon scanner (objective 1) ----------------------------------------
+# The scanner's core is pure-socket and needs neither of these, but they add
+# enrichment layers when present (see services/scanner.py):
+#   python-nmap -> service/version detection, needs the Nmap binary on PATH.
+#   scapy       -> optional packet-level SYN probe, needs Npcap + privileges.
+# Both degrade gracefully if unavailable, so they're safe to install anywhere.
+python-nmap>=0.7
+scapy>=2.5
+
+# --- Tests ---------------------------------------------------------------
+pytest>=8.0
+httpx>=0.27   # FastAPI TestClient dependency

@@ -8,14 +8,20 @@ Final year project (FYP).
 
 ## What's here
 
-- `backend/` - FastAPI JSON API: an ordered task/challenge engine
-  (`content/tasks.yaml`), OWASP IoT Top 5 mapping, ReportLab PDF reporting,
-  and a pre/post learning-effectiveness quiz. It never scans or exploits
-  anything itself - it only tracks progress.
+- `backend/` - FastAPI JSON API: a specialised recon scanner
+  (`services/scanner.py`) that runs one scoped, automated port-scan +
+  protocol-banner sweep of the target and narrates each service; an ordered
+  task/challenge engine (`content/tasks.yaml`); OWASP IoT Top 5 mapping;
+  ReportLab PDF reporting; and a pre/post learning-effectiveness quiz. The
+  scanner is the *only* component that touches the target's network, and it
+  only ever runs against an in-scope lab IP (see `services/guardrail.py`);
+  everything else just tracks the progress of what the student does by hand.
 - `frontend/` - React + Vite + TypeScript + Tailwind SPA implementing the
-  guided flow (Pre-Quiz -> Challenges -> Report -> Post-Quiz), with a
+  guided flow (Pre-Quiz -> Recon -> Challenges -> Report -> Post-Quiz), with a
   Hack The Box-style task board (locked/active/completed tasks, live
-  auto-detected progress, and flag/answer submission).
+  auto-detected progress, and flag/answer submission). The Recon step runs the
+  automated scan and explains each finding; the student then reproduces the
+  exploitable ones by hand (demonstrate, then replicate).
 - `target/` - A deliberately vulnerable simulated IP camera (Docker image):
   weak-credential HTTP admin panel, Telnet stub, and an unauthenticated
   RTSP-style banner service. Self-reports triggered vulnerabilities to the

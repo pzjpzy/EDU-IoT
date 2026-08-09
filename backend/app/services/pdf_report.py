@@ -22,7 +22,13 @@ _SEVERITY_COLOR = {
 }
 
 
-def generate_report(session, findings: list, quiz_attempts: list, not_applicable: list | None = None) -> bytes:
+def generate_report(
+    session,
+    findings: list,
+    quiz_attempts: list,
+    not_applicable: list | None = None,
+    scan: dict | None = None,
+) -> bytes:
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=2 * cm, bottomMargin=2 * cm)
     styles = getSampleStyleSheet()
@@ -39,7 +45,25 @@ def generate_report(session, findings: list, quiz_attempts: list, not_applicable
             body,
         )
     )
+    story.append(Spacer(1, 0.5 * cm))
+
+    # --- Executive summary: at-a-glance risk tally ------------------------
+    counts = {"High": 0, "Medium": 0, "Low": 0}
+    for f in findings:
+        if f.severity in counts:
+            counts[f.severity] += 1
+    story.append(Paragraph("Executive Summary", styles["Heading2"]))
+    story.append(
+        Paragraph(
+            f"This assessment recorded <b>{len(findings)}</b> confirmed finding(s) on the target: "
+            f"<b>{counts['High']}</b> High, <b>{counts['Medium']}</b> Medium, and "
+            f"<b>{counts['Low']}</b> Low severity, each mapped to the OWASP IoT Top 5 below.",
+            body,
+        )
+    )
     story.append(Spacer(1, 0.6 * cm))
+
+    _scan_section(story, styles, body, small, scan)
 
     story.append(Paragraph("Findings Summary", styles["Heading2"]))
     if not findings:
@@ -119,6 +143,31 @@ def generate_report(session, findings: list, quiz_attempts: list, not_applicable
             )
         )
         story.append(quiz_table)
+        story.append(Spacer(1, 0.2 * cm))
+
+        # Learning gain = the actual measurement objective 4 is about, not
+        # just the two raw scores. Only meaningful once both phases exist.
+        by_phase = {q.phase: q for q in quiz_attempts}
+        pre, post = by_phase.get("pre"), by_phase.get("post")
+        if pre and post and post.total:
+            delta = post.score - pre.score
+            pre_pct = pre.score / pre.total * 100 if pre.total else 0
+            post_pct = post.score / post.total * 100
+            if delta > 0:
+                verdict = (
+                    f"the student's score improved by {delta} question(s) "
+                    f"(+{post_pct - pre_pct:.0f} percentage points), indicating a measurable learning gain."
+                )
+            elif delta == 0:
+                verdict = "the student's score was unchanged between the pre- and post-session quiz."
+            else:
+                verdict = f"the student's score decreased by {abs(delta)} question(s) after the session."
+            story.append(
+                Paragraph(
+                    f"<b>Learning gain:</b> going from {pre_pct:.0f}% to {post_pct:.0f}%, {verdict}",
+                    body,
+                )
+            )
         story.append(Spacer(1, 0.4 * cm))
 
     story.append(Paragraph("Disclaimer", styles["Heading2"]))
@@ -133,3 +182,49 @@ def generate_report(session, findings: list, quiz_attempts: list, not_applicable
 
     doc.build(story)
     return buffer.getvalue()
+
+
+def _scan_section(story, styles, body, small, scan: dict | None) -> None:
+    """Automated recon results (objective 1), if a scan was run for the
+    session. Placed before the manual findings so the report reads in the
+    order the assessment happened: automated recon first, then confirmed
+    exploitation."""
+    if not scan:
+        return
+    story.append(Paragraph("Automated Recon Scan", styles["Heading2"]))
+    story.append(Paragraph(scan.get("summary", ""), body))
+    story.append(Spacer(1, 0.2 * cm))
+
+    services = scan.get("services", [])
+    if services:
+        scan_data = [["Port", "Protocol", "OWASP", "Observation", "Banner / Version"]]
+        for svc in services:
+            banner = svc.get("version") or svc.get("banner") or "-"
+            scan_data.append(
+                [
+                    Paragraph(str(svc.get("port", "")), small),
+                    Paragraph(svc.get("protocol", ""), small),
+                    Paragraph(svc.get("owasp_id", ""), small),
+                    Paragraph(svc.get("observation", ""), small),
+                    Paragraph(banner, small),
+                ]
+            )
+        scan_table = Table(scan_data, colWidths=[1.5 * cm, 2 * cm, 1.8 * cm, 6 * cm, 5 * cm], repeatRows=1)
+        scan_table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#2c3e50")),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                    ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f4f4f4")]),
+                ]
+            )
+        )
+        story.append(scan_table)
+
+    notes = scan.get("engine_notes", [])
+    if notes:
+        story.append(Spacer(1, 0.15 * cm))
+        story.append(Paragraph("Scan engines: " + "; ".join(notes), small))
+    story.append(Spacer(1, 0.8 * cm))
