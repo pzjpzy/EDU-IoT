@@ -86,7 +86,7 @@ Select the GNS3 VM → **Settings → System → Processor** tab → make sure
 **"Enable Nested VT-x/AMD-V" is UNCHECKED** (it may be greyed out — that's
 fine). Give it **2 CPUs** and **2048–4096 MB RAM** (System → Motherboard).
 
-This is the whole reason we switched away from VMware: your Docker camera node
+This is the whole reason we switched away from VMware: Docker camera node
 does **not** need nested virtualization, and VirtualBox doesn't force it on.
 
 ### 2c. Set up the two network adapters
@@ -105,7 +105,7 @@ it as-is.
 |---------|-------------|---------|
 | **Adapter 1** | **NAT** | Gives the GNS3 VM internet — needed so it can pull Docker base images when you build the camera. |
 | **Adapter 2** | **Host-only Adapter** → select the one from above | The private link the GNS3 GUI (and later your scanner) uses to reach the VM. |
-
+**use virtio-net as adapter type for both adapter**
 Tick **"Enable Network Adapter"** on both. Click **OK**.
 
 ### 2d. Boot it once
@@ -227,6 +227,9 @@ green.
 The camera container has no DHCP client, so give it a static address on the
 host-only subnet. Right-click the **eduvapt-camera** node → **Console** (opens a
 shell inside the container) and run:
+
+docker ps
+docker exec -u root -it <container_name_or_id> /bin/bash
 
 ```bash
 ip addr add 192.168.56.50/24 dev eth0
