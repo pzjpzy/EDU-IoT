@@ -71,3 +71,22 @@ class ScanResult(BaseModel):
 class ScanRequest(BaseModel):
     use_nmap: bool = True
     use_scapy: bool = False
+
+
+class CapstoneRequest(BaseModel):
+    """The capstone runs against a SECOND target the student attacks unguided,
+    so its IP is supplied per request rather than stored on the session."""
+
+    capstone_target_ip: str
+
+
+class CapstoneAnswer(CapstoneRequest):
+    answer: str
+
+
+class CapstoneStatusUpdate(BaseModel):
+    status: str  # "completed" | "gave_up" | "skipped"
+
+
+class ProgressUpdate(BaseModel):
+    furthest_phase: int

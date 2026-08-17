@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api/client'
-import type { QuizResult, StageExplanation, VaptSession } from '../api/types'
+import type { QuizResult, SessionSummary, StageExplanation, VaptSession } from '../api/types'
 import StepperNav from '../components/StepperNav'
 import QuizStep from '../components/steps/QuizStep'
 import ReconStep from '../components/steps/ReconStep'
 import TasksStep from '../components/steps/TasksStep'
 import ReportStep from '../components/steps/ReportStep'
+import CapstoneStep from '../components/steps/CapstoneStep'
+import SummaryStep from '../components/steps/SummaryStep'
+
+const SUMMARY_PHASE = 5
 
 const RECON_EXPLANATION: StageExplanation = {
   title: 'Stage 1 - Automated Recon',
@@ -29,11 +33,31 @@ export default function GuidedWizard() {
   const sessionId = Number(id)
   const [session, setSession] = useState<VaptSession | null>(null)
   const [step, setStep] = useState(0)
+  const [furthest, setFurthest] = useState(0)
   const [preQuizResult, setPreQuizResult] = useState<QuizResult | null>(null)
+  const [summary, setSummary] = useState<SessionSummary | null>(null)
 
   useEffect(() => {
     api.getSession(sessionId).then(setSession).catch(() => {})
+    // Restore how far the student got so a page reload doesn't drop them back
+    // at Pre-Quiz, and so the stepper knows which phases are revisitable.
+    api
+      .getSummary(sessionId)
+      .then((s) => {
+        setSummary(s)
+        const resume = Math.min(Math.max(s.furthest_phase, 0), SUMMARY_PHASE)
+        setFurthest(resume)
+        setStep(resume)
+      })
+      .catch(() => {})
   }, [sessionId])
+
+  /** Move forward a phase and persist it as the new furthest reached. */
+  function advance(next: number) {
+    setStep(next)
+    setFurthest((f) => Math.max(f, next))
+    api.setProgress(sessionId, next).catch(() => {})
+  }
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-10 space-y-8">
@@ -47,7 +71,7 @@ export default function GuidedWizard() {
         </div>
       </div>
 
-      <StepperNav current={step} />
+      <StepperNav current={step} furthest={furthest} onNavigate={setStep} />
 
       {step === 0 && (
         <QuizStep
@@ -55,7 +79,7 @@ export default function GuidedWizard() {
           phase="pre"
           onComplete={(res) => {
             setPreQuizResult(res)
-            setStep(1)
+            advance(1)
           }}
         />
       )}
@@ -65,42 +89,27 @@ export default function GuidedWizard() {
           sessionId={sessionId}
           targetIp={session.target_ip}
           explanation={RECON_EXPLANATION}
-          onComplete={() => setStep(2)}
+          onComplete={() => advance(2)}
         />
       )}
 
       {step === 2 && session && (
-        <TasksStep sessionId={sessionId} targetIp={session.target_ip} onAllComplete={() => setStep(3)} />
+        <TasksStep sessionId={sessionId} targetIp={session.target_ip} onAllComplete={() => advance(3)} />
       )}
 
       {step === 3 && (
-        <ReportStep sessionId={sessionId} explanation={REPORT_EXPLANATION} onComplete={() => setStep(4)} />
+        <ReportStep sessionId={sessionId} explanation={REPORT_EXPLANATION} onComplete={() => advance(4)} />
       )}
 
       {step === 4 && (
-        <QuizStep sessionId={sessionId} phase="post" priorResult={preQuizResult} onComplete={() => setStep(5)} />
+        <CapstoneStep
+          sessionId={sessionId}
+          preQuiz={preQuizResult ?? summary?.pre_quiz ?? null}
+          onComplete={() => advance(SUMMARY_PHASE)}
+        />
       )}
 
-      {step === 5 && (
-        <div className="rounded-lg border border-emerald-600/40 bg-emerald-500/10 p-8 text-center space-y-4">
-          <h2 className="text-xl font-semibold text-emerald-300">Session complete</h2>
-          <p className="text-slate-300">
-            You've worked through every task in this room using your own tools, and completed the
-            learning-effectiveness quiz. You can revisit the report at any time.
-          </p>
-          <div className="flex justify-center gap-3">
-            <button
-              onClick={() => setStep(3)}
-              className="rounded-md border border-slate-600 px-4 py-2 text-slate-300 hover:bg-slate-800"
-            >
-              Back to Report
-            </button>
-            <Link to="/dashboard" className="rounded-md bg-sky-600 px-4 py-2 font-medium text-white hover:bg-sky-500">
-              Back to Dashboard
-            </Link>
-          </div>
-        </div>
-      )}
+      {step === SUMMARY_PHASE && <SummaryStep sessionId={sessionId} />}
     </div>
   )
 }

@@ -12,12 +12,14 @@ Final year project (FYP).
   (`services/scanner.py`) that runs one scoped, automated port-scan +
   protocol-banner sweep of the target and narrates each service; an ordered
   task/challenge engine (`content/tasks.yaml`); OWASP IoT Top 5 mapping;
-  ReportLab PDF reporting; and a pre/post learning-effectiveness quiz. The
+  ReportLab PDF reporting; a pre-session knowledge quiz; and an unguided
+  capstone challenge against a second, unseen target that measures whether the
+  guided session transferred into hands-on skill. The
   scanner is the *only* component that touches the target's network, and it
   only ever runs against an in-scope lab IP (see `services/guardrail.py`);
   everything else just tracks the progress of what the student does by hand.
 - `frontend/` - React + Vite + TypeScript + Tailwind SPA implementing the
-  guided flow (Pre-Quiz -> Recon -> Challenges -> Report -> Post-Quiz), with a
+  guided flow (Pre-Quiz -> Recon -> Challenges -> Report -> Capstone), with a
   Hack The Box-style task board (locked/active/completed tasks, live
   auto-detected progress, and flag/answer submission). The Recon step runs the
   automated scan and explains each finding; the student then reproduces the
@@ -62,6 +64,27 @@ target - the backend itself has no scanning dependencies.)
 cd target
 docker compose up --build -d
 ```
+
+**1b. (Optional) Start the capstone target**
+
+The final step of the guided flow is an unguided capstone against a *second*,
+unseen camera - the same image with a different weakness mix. Start it
+alongside the main target (it binds to `127.0.0.2`, so the two don't clash on
+ports 80/23/554):
+
+```bash
+docker compose -f capstone/docker-compose.yml up --build -d
+```
+
+In the app's Capstone step, enter the capstone target IP `127.0.0.2`.
+
+> If your Docker Desktop won't publish to `127.0.0.2` (some Windows setups only
+> bind `127.0.0.1`), just run the capstone on loopback instead: stop the guided
+> target (`docker compose -f target/docker-compose.yml down`), edit the port
+> lines in `capstone/docker-compose.yml` from `127.0.0.2:80:80` to `80:80`
+> (and the same for 23/554), bring the capstone up, and enter `127.0.0.1` in
+> the Capstone step. In a GNS3 lab this doesn't arise - the capstone is just a
+> second camera node with its own IP.
 
 **2. Start the backend**
 

@@ -1,0 +1,38 @@
+# Capstone target for EduVAPT-IoT's final, unguided challenge step.
+#
+# It's the SAME camera image as ../target (single source of truth for the
+# vulnerability logic), just started with a DIFFERENT weakness mix the student
+# hasn't seen in the guided room, so the capstone tests transfer instead of
+# memory:
+#   - HTTP admin default creds: FIXED  (the easy web-login path is gone)
+#   - Unauthenticated snapshot:  STILL VULNERABLE
+#   - Telnet + default creds:    STILL VULNERABLE
+#   - RTSP banner service:       STILL EXPOSED
+# The backend reads this mix from GET /eduvapt/profile and shows only the
+# objectives that actually apply - no backend change needed to re-tune it,
+# just edit the environment below.
+#
+# Published on loopback 127.0.0.2 so it can run at the SAME TIME as the guided
+# target on 127.0.0.1 without a port clash (both use 80/23/554). 127.0.0.2 is
+# inside the default lab scope (127.0.0.0/8), so the guardrail allows it.
+# Enter 127.0.0.2 as the capstone target IP in the app's Capstone step.
+#
+#   docker compose -f capstone/docker-compose.yml up --build -d
+#   docker compose -f capstone/docker-compose.yml down
+#
+# (In a GNS3 lab, run this weakness mix as a second camera node instead and
+# enter that node's IP in the Capstone step.)
+services:
+  camera-capstone:
+    build: ../target
+    container_name: eduvapt-camera-capstone
+    ports:
+      - "127.0.0.2:80:80"
+      - "127.0.0.2:23:23"
+      - "127.0.0.2:554:554"
+    environment:
+      EDUVAPT_HTTP_DEFAULT_CREDS: "false"
+      EDUVAPT_SNAPSHOT_UNAUTH: "true"
+      EDUVAPT_TELNET_ENABLED: "true"
+      EDUVAPT_TELNET_DEFAULT_CREDS: "true"
+      EDUVAPT_RTSP_ENABLED: "true"

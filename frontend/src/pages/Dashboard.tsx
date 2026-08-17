@@ -31,6 +31,13 @@ export default function Dashboard() {
     }
   }
 
+  async function handleDelete(e: React.MouseEvent, s: VaptSession) {
+    e.stopPropagation()
+    if (!window.confirm(`Delete session "${s.name}"? This removes its scans, findings, and progress.`)) return
+    await api.deleteSession(s.id)
+    reload()
+  }
+
   return (
     <div className="mx-auto max-w-3xl px-6 py-10 space-y-8">
       <div>
@@ -74,10 +81,10 @@ export default function Dashboard() {
         <h2 className="mb-3 font-semibold text-slate-100">Existing sessions</h2>
         <div className="space-y-2">
           {sessions.map((s) => (
-            <button
+            <div
               key={s.id}
               onClick={() => navigate(`/sessions/${s.id}`)}
-              className="flex w-full items-center justify-between rounded-lg border border-slate-700 bg-slate-800/50 px-4 py-3 text-left hover:border-sky-500"
+              className="flex w-full cursor-pointer items-center justify-between rounded-lg border border-slate-700 bg-slate-800/50 px-4 py-3 text-left hover:border-sky-500"
             >
               <div>
                 <p className="font-medium text-slate-100">{s.name}</p>
@@ -85,8 +92,17 @@ export default function Dashboard() {
                   {s.target_ip} &middot; {new Date(s.created_at).toLocaleString()}
                 </p>
               </div>
-              <span className="text-slate-500">&rarr;</span>
-            </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={(e) => handleDelete(e, s)}
+                  title="Delete session"
+                  className="rounded-md border border-slate-600 px-2 py-1 text-xs text-slate-400 hover:border-red-500 hover:text-red-400"
+                >
+                  Delete
+                </button>
+                <span className="text-slate-500">&rarr;</span>
+              </div>
+            </div>
           ))}
           {sessions.length === 0 && <p className="text-slate-500">No sessions yet.</p>}
         </div>

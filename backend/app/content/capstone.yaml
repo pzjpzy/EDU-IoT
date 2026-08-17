@@ -1,0 +1,58 @@
+# Capstone challenge objectives (replaces the old post-session quiz).
+#
+# The capstone runs against a SECOND, unseen camera - the same image as the
+# guided target but started with a different weakness mix (see
+# ../../../capstone/docker-compose.yml) - so the student has to re-recon and
+# exploit a box they were never walked through. Unlike content/tasks.yaml
+# these are deliberately UNGUIDED: a one-line objective only, no `concept`
+# and no `hint`, and every objective is unlocked at once (no ordering). They
+# create no report Findings; the number completed is the learning signal.
+#
+# Each objective is gated by `requires` (target-profile flags, exactly like
+# tasks.yaml) so this one file adapts to whatever weakness mix the capstone
+# target actually declares at GET /eduvapt/profile. Completion is confirmed
+# the same two ways as the guided board:
+#   - type: auto   -> the target self-reports the event (check_event)
+#   - type: submit -> the student types a flag/answer (answer, case-insensitive)
+
+- id: cap-http-login
+  title: "Break into the web admin panel"
+  type: auto
+  requires: [http_default_creds_vulnerable]
+  check_event: http_default_login
+  owasp_id: I1
+
+- id: cap-http-flag
+  title: "Retrieve the flag from the authenticated camera feed"
+  type: submit
+  requires: [http_default_creds_vulnerable]
+  answer: ["EDUVAPT{d3f4ult_cr3d5_4r3_d4ng3r0us}"]
+  owasp_id: I1
+
+- id: cap-snapshot
+  title: "View the live camera feed without authenticating"
+  type: auto
+  requires: [snapshot_unauth_vulnerable]
+  check_event: unauth_snapshot_access
+  owasp_id: I3
+
+- id: cap-telnet-login
+  title: "Gain an interactive session on the device"
+  type: auto
+  requires: [telnet_default_creds_vulnerable]
+  check_event: telnet_default_login
+  owasp_id: I1
+
+- id: cap-telnet-flag
+  title: "Recover the flag from the device's command line"
+  type: submit
+  requires: [telnet_default_creds_vulnerable]
+  answer: ["EDUVAPT{t3ln3t_d3f4ult_cr3d5}"]
+  owasp_id: I1
+
+- id: cap-rtsp
+  title: "Identify the streaming service software (product name)"
+  type: submit
+  requires: [rtsp_enabled]
+  answer: ["IoT-Cam-RTSP", "IoT-Cam-RTSP/1.0"]
+  owasp_id: I5

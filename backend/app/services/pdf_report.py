@@ -28,6 +28,7 @@ def generate_report(
     quiz_attempts: list,
     not_applicable: list | None = None,
     scan: dict | None = None,
+    capstone_status: str | None = None,
 ) -> bytes:
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=2 * cm, bottomMargin=2 * cm)
@@ -127,7 +128,7 @@ def generate_report(
         story.append(Spacer(1, 0.8 * cm))
 
     if quiz_attempts:
-        story.append(Paragraph("Learning Effectiveness (Pre/Post Quiz)", styles["Heading2"]))
+        story.append(Paragraph("Learning Effectiveness", styles["Heading2"]))
         quiz_data = [["Phase", "Score", "Total", "Percentage"]]
         for q in quiz_attempts:
             pct = f"{(q.score / q.total * 100):.0f}%" if q.total else "n/a"
@@ -149,6 +150,30 @@ def generate_report(
         # just the two raw scores. Only meaningful once both phases exist.
         by_phase = {q.phase: q for q in quiz_attempts}
         pre, post = by_phase.get("pre"), by_phase.get("post")
+        capstone = by_phase.get("capstone")
+        if pre and capstone and capstone.total:
+            # Objective 4, capstone model: a pre-session knowledge check
+            # (multiple choice) followed by an UNGUIDED capstone where the
+            # student independently exploited a second, unseen target. The two
+            # measure different things - recall vs. applied competency - so
+            # they're reported side by side rather than as a single delta.
+            pre_pct = pre.score / pre.total * 100 if pre.total else 0
+            cap_pct = capstone.score / capstone.total * 100
+            _qualifier = {
+                "gave_up": " (the student ended the capstone early; this is their partial progress)",
+                "skipped": "",
+                "completed": "",
+            }.get(capstone_status or "", "")
+            story.append(
+                Paragraph(
+                    f"<b>Applied competency:</b> starting from a pre-session knowledge score of "
+                    f"{pre.score}/{pre.total} ({pre_pct:.0f}%), the student then independently completed "
+                    f"{capstone.score} of {capstone.total} exploitation objective(s) ({cap_pct:.0f}%) against a "
+                    f"second, unseen target with no step-by-step guidance{_qualifier} - evidence of whether the "
+                    f"guided session transferred into hands-on skill.",
+                    body,
+                )
+            )
         if pre and post and post.total:
             delta = post.score - pre.score
             pre_pct = pre.score / pre.total * 100 if pre.total else 0

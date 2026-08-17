@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session as DBSession
 
 from app.database import get_db
 from app.deps import get_session_or_404
-from app.models import Finding, QuizAttempt, ScanRun
+from app.models import Finding, QuizAttempt, ScanRun, SessionState
 from app.schemas import FindingOut
 from app.services import task_engine
 from app.services.pdf_report import generate_report
@@ -33,7 +33,10 @@ def get_report(session_id: int, db: DBSession = Depends(get_db)):
     )
     scan = json.loads(latest_scan_row.result_json) if latest_scan_row else None
 
-    pdf_bytes = generate_report(session, findings, quiz_attempts, not_applicable, scan)
+    state = db.get(SessionState, session.id)
+    capstone_status = state.capstone_status if state else None
+
+    pdf_bytes = generate_report(session, findings, quiz_attempts, not_applicable, scan, capstone_status)
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",

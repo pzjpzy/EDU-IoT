@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session as DBSession
 from app.database import get_db
 from app.deps import get_session_or_404
 from app.models import VaptSession
-from app.schemas import SessionCreate, SessionOut
+from app.schemas import ProgressUpdate, SessionCreate, SessionOut
+from app.services import session_progress
 from app.services.guardrail import is_in_scope
 
 router = APIRouter(prefix="/api/sessions", tags=["sessions"])
@@ -39,3 +40,19 @@ def delete_session(session_id: int, db: DBSession = Depends(get_db)):
     session = get_session_or_404(session_id, db)
     db.delete(session)
     db.commit()
+
+
+@router.get("/{session_id}/summary")
+def get_summary(session_id: int, db: DBSession = Depends(get_db)):
+    """End-of-session dashboard data + how far the student has progressed (used
+    to restore the wizard and enable the phase stepper after a reload)."""
+    session = get_session_or_404(session_id, db)
+    return session_progress.build_summary(db, session)
+
+
+@router.put("/{session_id}/progress")
+def update_progress(session_id: int, payload: ProgressUpdate, db: DBSession = Depends(get_db)):
+    """Record the furthest phase reached so the flow survives a page reload."""
+    session = get_session_or_404(session_id, db)
+    state = session_progress.bump_phase(db, session.id, payload.furthest_phase)
+    return {"furthest_phase": state.furthest_phase}

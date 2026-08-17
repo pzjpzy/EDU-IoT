@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, engine
-from app.routers import quiz, report, scan, sessions, tasks, terminal
+from app.routers import capstone, quiz, report, scan, sessions, tasks, terminal
 
 Base.metadata.create_all(bind=engine)
 
@@ -28,6 +28,7 @@ app.include_router(tasks.router)
 app.include_router(scan.router)
 app.include_router(report.router)
 app.include_router(quiz.router)
+app.include_router(capstone.router)
 app.include_router(terminal.router)
 
 

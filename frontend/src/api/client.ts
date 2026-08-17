@@ -1,10 +1,13 @@
 import type {
+  CapstoneBoard,
+  CapstoneStatus,
   CheckResult,
   Finding,
   QuizAnswer,
   QuizQuestion,
   QuizResult,
   ScanResult,
+  SessionSummary,
   SubmitResult,
   TaskBoard,
   VaptSession,
@@ -41,6 +44,13 @@ export const api = {
   getSession: (id: number) => request<VaptSession>(`/api/sessions/${id}`),
   deleteSession: (id: number) => fetch(`${BASE_URL}/api/sessions/${id}`, { method: 'DELETE' }),
 
+  getSummary: (id: number) => request<SessionSummary>(`/api/sessions/${id}/summary`),
+  setProgress: (id: number, furthestPhase: number) =>
+    request<{ furthest_phase: number }>(`/api/sessions/${id}/progress`, {
+      method: 'PUT',
+      body: JSON.stringify({ furthest_phase: furthestPhase }),
+    }),
+
   runScan: (id: number, useScapy = false) =>
     request<ScanResult>(`/api/sessions/${id}/scan`, {
       method: 'POST',
@@ -58,6 +68,27 @@ export const api = {
     }),
 
   getFindings: (id: number) => request<Finding[]>(`/api/sessions/${id}/findings`),
+
+  capstoneBoard: (id: number, capstoneIp: string) =>
+    request<CapstoneBoard>(`/api/sessions/${id}/capstone/board`, {
+      method: 'POST',
+      body: JSON.stringify({ capstone_target_ip: capstoneIp }),
+    }),
+  checkCapstone: (id: number, objId: string, capstoneIp: string) =>
+    request<CheckResult>(`/api/sessions/${id}/capstone/${objId}/check`, {
+      method: 'POST',
+      body: JSON.stringify({ capstone_target_ip: capstoneIp }),
+    }),
+  submitCapstone: (id: number, objId: string, capstoneIp: string, answer: string) =>
+    request<SubmitResult>(`/api/sessions/${id}/capstone/${objId}/submit`, {
+      method: 'POST',
+      body: JSON.stringify({ capstone_target_ip: capstoneIp, answer }),
+    }),
+  setCapstoneStatus: (id: number, status: CapstoneStatus) =>
+    request<{ capstone_status: string }>(`/api/sessions/${id}/capstone/status`, {
+      method: 'POST',
+      body: JSON.stringify({ status }),
+    }),
 
   getQuizQuestions: () => request<QuizQuestion[]>('/api/quiz/questions'),
   submitQuiz: (id: number, phase: 'pre' | 'post', answers: QuizAnswer[]) =>

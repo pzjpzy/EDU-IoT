@@ -96,3 +96,30 @@ export interface QuizResult {
   total: number
   breakdown: { question_id: string; correct: boolean; correct_answer_index: number }[]
 }
+
+export interface CapstoneObjective {
+  id: string
+  title: string
+  type: 'auto' | 'submit'
+  owasp_id: string
+  completed: boolean
+}
+
+export interface CapstoneBoard {
+  objectives: CapstoneObjective[]
+  profile: TargetProfile
+  warning: string | null
+  score: number
+  total: number
+}
+
+export type CapstoneStatus = 'completed' | 'gave_up' | 'skipped' | 'in_progress' | 'not_started'
+
+export interface SessionSummary {
+  furthest_phase: number
+  pre_quiz: { score: number; total: number } | null
+  recon_done: boolean
+  findings_by_severity: { High: number; Medium: number; Low: number }
+  findings_total: number
+  capstone: { status: CapstoneStatus; score: number | null; total: number | null }
+}

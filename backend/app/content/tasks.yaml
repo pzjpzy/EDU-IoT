@@ -194,7 +194,7 @@
   prompt: >
     Connect to port 554 directly (e.g. with ncat) and send a bare RTSP
     OPTIONS request. What does the 'Server:' header say (product name only)?
-  hint: 'Try: printf "OPTIONS rtsp://<ip>:554/ RTSP/1.0\r\nCSeq: 1\r\n\r\n" | ncat <ip> 554'
+  hint: 'Try: "OPTIONS rtsp://127.0.0.1:554/ RTSP/1.0`r`nCSeq: 1`r`n`r`n" | ncat 127.0.0.1 554'
   answer: ["IoT-Cam-RTSP", "IoT-Cam-RTSP/1.0"]
   owasp_id: I5
   finding_title: "Service software identified via banner grabbing"

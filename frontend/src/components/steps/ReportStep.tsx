@@ -62,7 +62,7 @@ export default function ReportStep({ sessionId, explanation, onComplete }: Props
               onClick={onComplete}
               className="rounded-md bg-sky-600 px-4 py-2 font-medium text-white hover:bg-sky-500"
             >
-              Continue to Post-Session Quiz
+              Continue to Capstone Challenge
             </button>
           </div>
         </>

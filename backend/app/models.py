@@ -28,6 +28,7 @@ class VaptSession(Base):
     task_progress = relationship("TaskProgress", back_populates="session", cascade="all, delete-orphan")
     quiz_attempts = relationship("QuizAttempt", back_populates="session", cascade="all, delete-orphan")
     scan_runs = relationship("ScanRun", back_populates="session", cascade="all, delete-orphan")
+    state = relationship("SessionState", back_populates="session", uselist=False, cascade="all, delete-orphan")
 
 
 class TaskProgress(Base):
@@ -82,6 +83,27 @@ class ScanRun(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     session = relationship("VaptSession", back_populates="scan_runs")
+
+
+class SessionState(Base):
+    """Per-session UI progress so the guided flow survives a page reload.
+
+    `furthest_phase` is the highest wizard step the student has reached
+    (0=Pre-Quiz ... 4=Capstone, 5=Summary/complete); the stepper lets them
+    jump back to any phase up to it. `capstone_status` records how the
+    capstone ended - completed, given up part-way, or skipped - which the
+    end-of-session summary and report distinguish. A separate table (rather
+    than columns on VaptSession) so it's created cleanly by create_all with
+    no migration of existing sessions.
+    """
+
+    __tablename__ = "session_state"
+
+    session_id = Column(Integer, ForeignKey("sessions.id"), primary_key=True)
+    furthest_phase = Column(Integer, nullable=False, default=0)
+    capstone_status = Column(String, nullable=True)  # completed | gave_up | skipped
+
+    session = relationship("VaptSession", back_populates="state")
 
 
 class QuizAttempt(Base):
