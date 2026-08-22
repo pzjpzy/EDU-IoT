@@ -190,6 +190,22 @@ def submit_answer(db: DBSession, session: VaptSession, task_id: str, answer: str
     return {"correct": correct}
 
 
+def challenge_accuracy(db: DBSession, session: VaptSession) -> tuple[int, int]:
+    """(completed, total) for the guided challenges that apply to this target -
+    the "with guidance" figure the report compares against the unguided
+    capstone. Capstone progress rows (cap:-prefixed) are naturally excluded
+    because their ids never appear in the applicable task set."""
+    profile, _ = fetch_profile(session.target_ip)
+    applicable_ids = {t["id"] for t in _applicable_tasks(profile)}
+    if not applicable_ids:
+        return 0, 0
+    completed = {
+        r.task_id
+        for r in db.query(TaskProgress).filter_by(session_id=session.id, completed=True).all()
+    }
+    return len(applicable_ids & completed), len(applicable_ids)
+
+
 def not_applicable_findings(target_ip: str) -> list[dict]:
     """Tasks that don't apply to this target - i.e. weaknesses that were
     checked for but aren't present - for the report's "tested but not

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session as DBSession
 
 from app.database import get_db
 from app.deps import get_session_or_404
-from app.models import VaptSession
+from app.models import Feedback, VaptSession
 from app.schemas import ProgressUpdate, SessionCreate, SessionOut
 from app.services import session_progress
 from app.services.guardrail import is_in_scope
@@ -38,6 +38,9 @@ def get_session(session_id: int, db: DBSession = Depends(get_db)):
 @router.delete("/{session_id}", status_code=204)
 def delete_session(session_id: int, db: DBSession = Depends(get_db)):
     session = get_session_or_404(session_id, db)
+    # Keep the student's feedback for the admin panel even though its session
+    # is going away - detach it rather than cascade-deleting it.
+    db.query(Feedback).filter_by(session_id=session.id).update({"session_id": None})
     db.delete(session)
     db.commit()
 

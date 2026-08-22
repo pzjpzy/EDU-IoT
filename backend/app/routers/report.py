@@ -35,8 +35,11 @@ def get_report(session_id: int, db: DBSession = Depends(get_db)):
 
     state = db.get(SessionState, session.id)
     capstone_status = state.capstone_status if state else None
+    challenge_acc = task_engine.challenge_accuracy(db, session)
 
-    pdf_bytes = generate_report(session, findings, quiz_attempts, not_applicable, scan, capstone_status)
+    pdf_bytes = generate_report(
+        session, findings, quiz_attempts, not_applicable, scan, capstone_status, challenge_acc
+    )
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",

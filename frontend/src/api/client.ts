@@ -2,15 +2,19 @@ import type {
   CapstoneBoard,
   CapstoneStatus,
   CheckResult,
+  FeedbackItem,
   Finding,
   QuizAnswer,
   QuizQuestion,
   QuizResult,
   ScanResult,
   SessionSummary,
+  StatsOverview,
   SubmitResult,
   TaskBoard,
   VaptSession,
+  VulnBucket,
+  VulnGranularity,
 } from './types'
 
 const BASE_URL = import.meta.env.VITE_API_BASE ?? 'http://127.0.0.1:8000'
@@ -43,6 +47,10 @@ export const api = {
     request<VaptSession>('/api/sessions', { method: 'POST', body: JSON.stringify({ name, target_ip }) }),
   getSession: (id: number) => request<VaptSession>(`/api/sessions/${id}`),
   deleteSession: (id: number) => fetch(`${BASE_URL}/api/sessions/${id}`, { method: 'DELETE' }),
+
+  getStatsOverview: () => request<StatsOverview>('/api/stats/overview'),
+  getVulnStats: (granularity: VulnGranularity) =>
+    request<VulnBucket[]>(`/api/stats/vulnerabilities?granularity=${granularity}`),
 
   getSummary: (id: number) => request<SessionSummary>(`/api/sessions/${id}/summary`),
   setProgress: (id: number, furthestPhase: number) =>
@@ -96,6 +104,22 @@ export const api = {
   getQuizResults: (id: number) => request<QuizResult[]>(`/api/sessions/${id}/quiz`),
 
   reportUrl: (id: number) => `${BASE_URL}/api/sessions/${id}/report`,
+
+  submitFeedback: (id: number, rating: number, suggestion: string) =>
+    request<{ ok: boolean }>(`/api/sessions/${id}/feedback`, {
+      method: 'POST',
+      body: JSON.stringify({ rating, suggestion }),
+    }),
+
+  adminLogin: (password: string) =>
+    request<{ token: string }>('/api/admin/login', {
+      method: 'POST',
+      body: JSON.stringify({ password }),
+    }),
+  getAdminFeedback: (token: string) =>
+    request<FeedbackItem[]>('/api/admin/feedback', {
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    }),
 }
 
 export function terminalWsUrl(): string {

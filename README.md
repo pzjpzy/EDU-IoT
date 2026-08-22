@@ -111,6 +111,12 @@ Open http://localhost:5173, accept the scope disclaimer, and create a new
 session with target IP `127.0.0.1`. Then use your own Nmap/browser/Telnet
 client against `127.0.0.1` to work through the tasks.
 
+At the end of a session (leaving the capstone) students are prompted for a
+star rating + suggestion. That feedback is viewable at
+http://localhost:5173/admin, which asks for the admin password first. The
+default password is `admin`; set `EDUVAPT_ADMIN_PASSWORD` on the backend to
+change it (do this for anything beyond a local single-student lab).
+
 ## Using a GNS3 lab instead of the local Docker target
 
 See [`docs/gns3_setup.md`](docs/gns3_setup.md) for importing `target/` as a

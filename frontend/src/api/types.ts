@@ -123,3 +123,26 @@ export interface SessionSummary {
   findings_total: number
   capstone: { status: CapstoneStatus; score: number | null; total: number | null }
 }
+
+export type VulnGranularity = 'day' | 'week' | 'month'
+
+export interface StatsOverview {
+  cctv_scanned_this_month: number
+  quiz_accuracy: { correct: number; total: number; pct: number }
+  vulns_all_time: number
+}
+
+export interface VulnBucket {
+  bucket: string
+  High: number
+  Medium: number
+  Low: number
+}
+
+export interface FeedbackItem {
+  id: number
+  session_id: number | null
+  rating: number
+  suggestion: string | null
+  created_at: string
+}

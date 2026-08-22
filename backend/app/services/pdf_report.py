@@ -29,6 +29,7 @@ def generate_report(
     not_applicable: list | None = None,
     scan: dict | None = None,
     capstone_status: str | None = None,
+    challenge_accuracy: tuple[int, int] | None = None,
 ) -> bytes:
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=2 * cm, bottomMargin=2 * cm)
@@ -127,73 +128,7 @@ def generate_report(
         story.append(na_table)
         story.append(Spacer(1, 0.8 * cm))
 
-    if quiz_attempts:
-        story.append(Paragraph("Learning Effectiveness", styles["Heading2"]))
-        quiz_data = [["Phase", "Score", "Total", "Percentage"]]
-        for q in quiz_attempts:
-            pct = f"{(q.score / q.total * 100):.0f}%" if q.total else "n/a"
-            quiz_data.append([q.phase.upper(), str(q.score), str(q.total), pct])
-        quiz_table = Table(quiz_data, colWidths=[3 * cm, 3 * cm, 3 * cm, 3 * cm])
-        quiz_table.setStyle(
-            TableStyle(
-                [
-                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#2c3e50")),
-                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                    ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-                ]
-            )
-        )
-        story.append(quiz_table)
-        story.append(Spacer(1, 0.2 * cm))
-
-        # Learning gain = the actual measurement objective 4 is about, not
-        # just the two raw scores. Only meaningful once both phases exist.
-        by_phase = {q.phase: q for q in quiz_attempts}
-        pre, post = by_phase.get("pre"), by_phase.get("post")
-        capstone = by_phase.get("capstone")
-        if pre and capstone and capstone.total:
-            # Objective 4, capstone model: a pre-session knowledge check
-            # (multiple choice) followed by an UNGUIDED capstone where the
-            # student independently exploited a second, unseen target. The two
-            # measure different things - recall vs. applied competency - so
-            # they're reported side by side rather than as a single delta.
-            pre_pct = pre.score / pre.total * 100 if pre.total else 0
-            cap_pct = capstone.score / capstone.total * 100
-            _qualifier = {
-                "gave_up": " (the student ended the capstone early; this is their partial progress)",
-                "skipped": "",
-                "completed": "",
-            }.get(capstone_status or "", "")
-            story.append(
-                Paragraph(
-                    f"<b>Applied competency:</b> starting from a pre-session knowledge score of "
-                    f"{pre.score}/{pre.total} ({pre_pct:.0f}%), the student then independently completed "
-                    f"{capstone.score} of {capstone.total} exploitation objective(s) ({cap_pct:.0f}%) against a "
-                    f"second, unseen target with no step-by-step guidance{_qualifier} - evidence of whether the "
-                    f"guided session transferred into hands-on skill.",
-                    body,
-                )
-            )
-        if pre and post and post.total:
-            delta = post.score - pre.score
-            pre_pct = pre.score / pre.total * 100 if pre.total else 0
-            post_pct = post.score / post.total * 100
-            if delta > 0:
-                verdict = (
-                    f"the student's score improved by {delta} question(s) "
-                    f"(+{post_pct - pre_pct:.0f} percentage points), indicating a measurable learning gain."
-                )
-            elif delta == 0:
-                verdict = "the student's score was unchanged between the pre- and post-session quiz."
-            else:
-                verdict = f"the student's score decreased by {abs(delta)} question(s) after the session."
-            story.append(
-                Paragraph(
-                    f"<b>Learning gain:</b> going from {pre_pct:.0f}% to {post_pct:.0f}%, {verdict}",
-                    body,
-                )
-            )
-        story.append(Spacer(1, 0.4 * cm))
+    _learning_effectiveness(story, styles, body, quiz_attempts, challenge_accuracy, capstone_status)
 
     story.append(Paragraph("Disclaimer", styles["Heading2"]))
     story.append(
@@ -207,6 +142,79 @@ def generate_report(
 
     doc.build(story)
     return buffer.getvalue()
+
+
+def _learning_effectiveness(story, styles, body, quiz_attempts, challenge_accuracy, capstone_status) -> None:
+    """Objective 4, capstone model. The headline measure is guided-challenge
+    accuracy vs. UNGUIDED capstone accuracy (does the learning transfer when
+    the help is removed?); the pre-session quiz is shown only as a knowledge
+    baseline. There is no post-quiz here by design."""
+    by_phase = {q.phase: q for q in (quiz_attempts or [])}
+    pre = by_phase.get("pre")
+    capstone = by_phase.get("capstone")
+    ch_done, ch_total = challenge_accuracy or (0, 0)
+
+    rows = []
+    if pre and pre.total:
+        rows.append(("Pre-session knowledge quiz (baseline)", pre.score, pre.total))
+    if ch_total:
+        rows.append(("Guided challenges (with guidance)", ch_done, ch_total))
+    if capstone and capstone.total:
+        rows.append(("Unguided capstone challenge", capstone.score, capstone.total))
+    if not rows:
+        return
+
+    story.append(Paragraph("Learning Effectiveness", styles["Heading2"]))
+    table_data = [["Phase", "Score", "Total", "Percentage"]]
+    for label, score, total in rows:
+        pct = f"{score / total * 100:.0f}%" if total else "n/a"
+        table_data.append([label, str(score), str(total), pct])
+    table = Table(table_data, colWidths=[7 * cm, 2.5 * cm, 2.5 * cm, 3 * cm])
+    table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#2c3e50")),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ]
+        )
+    )
+    story.append(table)
+    story.append(Spacer(1, 0.2 * cm))
+
+    # The actual learning-effectiveness signal: how well guided performance
+    # held up once guidance was removed in the capstone.
+    if ch_total and capstone and capstone.total:
+        ch_pct = ch_done / ch_total * 100
+        cap_pct = capstone.score / capstone.total * 100
+        delta = cap_pct - ch_pct
+        if delta >= -10:
+            verdict = (
+                "the student sustained their performance without guidance - strong evidence the concepts "
+                "transferred into independent, hands-on skill."
+            )
+        elif delta >= -35:
+            verdict = (
+                "performance dropped moderately without guidance, indicating partial transfer from guided "
+                "learning to independent practice."
+            )
+        else:
+            verdict = (
+                "performance dropped sharply once guidance was removed, suggesting the student leaned on the "
+                "step-by-step help and should revisit the concepts."
+            )
+        qualifier = {
+            "gave_up": " (the capstone was ended early; this reflects partial progress)",
+            "skipped": " (the capstone was skipped)",
+        }.get(capstone_status or "", "")
+        story.append(
+            Paragraph(
+                f"<b>Guided vs. unguided:</b> the student completed {ch_pct:.0f}% of the challenges with "
+                f"step-by-step guidance and {cap_pct:.0f}% of the capstone unaided{qualifier} - {verdict}",
+                body,
+            )
+        )
+    story.append(Spacer(1, 0.6 * cm))
 
 
 def _scan_section(story, styles, body, small, scan: dict | None) -> None:

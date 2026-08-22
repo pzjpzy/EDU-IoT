@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api, ApiError } from '../api/client'
 import type { VaptSession } from '../api/types'
+import DashboardStats from '../components/DashboardStats'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -44,6 +45,8 @@ export default function Dashboard() {
         <h1 className="text-2xl font-bold text-slate-100">EduVAPT-IoT Dashboard</h1>
         <p className="text-slate-400">Start a new guided VAPT session, or resume an existing one.</p>
       </div>
+
+      <DashboardStats />
 
       <form onSubmit={handleCreate} className="rounded-lg border border-slate-700 bg-slate-800/50 p-5 space-y-4">
         <h2 className="font-semibold text-slate-100">New session</h2>

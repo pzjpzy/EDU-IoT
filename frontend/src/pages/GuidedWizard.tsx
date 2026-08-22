@@ -9,6 +9,7 @@ import TasksStep from '../components/steps/TasksStep'
 import ReportStep from '../components/steps/ReportStep'
 import CapstoneStep from '../components/steps/CapstoneStep'
 import SummaryStep from '../components/steps/SummaryStep'
+import FeedbackModal from '../components/FeedbackModal'
 
 const SUMMARY_PHASE = 5
 
@@ -36,6 +37,7 @@ export default function GuidedWizard() {
   const [furthest, setFurthest] = useState(0)
   const [preQuizResult, setPreQuizResult] = useState<QuizResult | null>(null)
   const [summary, setSummary] = useState<SessionSummary | null>(null)
+  const [showFeedback, setShowFeedback] = useState(false)
 
   useEffect(() => {
     api.getSession(sessionId).then(setSession).catch(() => {})
@@ -105,11 +107,20 @@ export default function GuidedWizard() {
         <CapstoneStep
           sessionId={sessionId}
           preQuiz={preQuizResult ?? summary?.pre_quiz ?? null}
-          onComplete={() => advance(SUMMARY_PHASE)}
+          onComplete={() => {
+            // Leaving the capstone for the summary: land on the summary and
+            // pop the feedback prompt over it (once, only on this transition).
+            advance(SUMMARY_PHASE)
+            setShowFeedback(true)
+          }}
         />
       )}
 
       {step === SUMMARY_PHASE && <SummaryStep sessionId={sessionId} />}
+
+      {showFeedback && (
+        <FeedbackModal sessionId={sessionId} onClose={() => setShowFeedback(false)} />
+      )}
     </div>
   )
 }

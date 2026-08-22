@@ -30,3 +30,9 @@ LAB_CIDRS = [
 
 # --- Reporting --------------------------------------------------------------
 REPORT_TITLE = "EduVAPT-IoT Vulnerability Assessment Report"
+
+# --- Admin panel ------------------------------------------------------------
+# Password for the /admin feedback panel. Override via EDUVAPT_ADMIN_PASSWORD;
+# the default is only acceptable for a local single-student lab - change it for
+# any shared or exposed deployment.
+ADMIN_PASSWORD = os.environ.get("EDUVAPT_ADMIN_PASSWORD", "admin")

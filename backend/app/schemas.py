@@ -90,3 +90,22 @@ class CapstoneStatusUpdate(BaseModel):
 
 class ProgressUpdate(BaseModel):
     furthest_phase: int
+
+
+class FeedbackCreate(BaseModel):
+    rating: int  # 1-5
+    suggestion: str | None = None
+
+
+class FeedbackOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    session_id: int | None
+    rating: int
+    suggestion: str | None
+    created_at: datetime.datetime
+
+
+class AdminLogin(BaseModel):
+    password: str

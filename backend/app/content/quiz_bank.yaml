@@ -1,6 +1,6 @@
-# MCQ bank used for the pre- and post-session learning-effectiveness quiz
-# (FYP objective 4). Same question set is used pre and post so scores are
-# directly comparable.
+# MCQ bank for the pre-session knowledge quiz (FYP objective 4). The score
+# here is the knowledge baseline; the unguided capstone later measures applied
+# skill. Add questions by appending more entries with a unique id.
 
 - id: q1
   question: "Which port is most commonly associated with the insecure, unencrypted Telnet service?"
@@ -50,4 +50,67 @@
     - "Disable the service or replace it with an encrypted equivalent (e.g. SSH)"
     - "Rename the device"
     - "Increase the video resolution"
+  answer_index: 1
+
+- id: q7
+  question: "Which OWASP IoT Top 10 weakness covers default logins like admin/admin?"
+  options:
+    - "Weak, guessable, or hardcoded passwords"
+    - "Insecure data transfer and storage"
+    - "Lack of physical hardening"
+    - "Insufficient privacy protection"
+  answer_index: 0
+
+- id: q8
+  question: "What is the primary security problem with using Telnet to manage a device?"
+  options:
+    - "It is slower than SSH"
+    - "It transmits credentials and data in cleartext"
+    - "It only works on Windows"
+    - "It requires a paid license"
+  answer_index: 1
+
+- id: q9
+  question: >
+    A camera's live page requires login, but the image it embeds (/snapshot.jpg)
+    loads with no login at all. What type of flaw is this?
+  options:
+    - "Broken/missing access control on an endpoint"
+    - "A buffer overflow"
+    - "A denial-of-service"
+    - "SQL injection"
+  answer_index: 0
+
+- id: q10
+  question: >
+    Reading the version string a service reveals about itself (e.g. an RTSP
+    'Server:' header) is called banner grabbing. Why does it matter to an assessor?
+  options:
+    - "It speeds up the network"
+    - "It reveals the software/version so known CVEs can be looked up"
+    - "It encrypts the connection"
+    - "It resets the device password"
+  answer_index: 1
+
+- id: q11
+  question: >
+    A web panel gives everyone the same fixed session cookie value, with no
+    expiry and no signing. Why is that a weakness?
+  options:
+    - "It uses too much bandwidth"
+    - "Anyone can forge or reuse the cookie to bypass the login"
+    - "It logs the user out too often"
+    - "It makes pages load slowly"
+  answer_index: 1
+
+- id: q12
+  question: >
+    Most weaknesses found on the camera came from how it shipped: default
+    passwords, services left on, missing auth checks. What best prevents this
+    whole class of issue?
+  options:
+    - "Buy a bigger hard drive"
+    - "Harden the device's default configuration before deployment"
+    - "Increase the video resolution"
+    - "Rename the device"
   answer_index: 1

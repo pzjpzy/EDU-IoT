@@ -69,3 +69,14 @@ def test_locked_task_rejects_answer(sample_session, db, monkeypatch):
     res = task_engine.submit_answer(db, sample_session, "recon-rtsp-port", "554")
     assert res["correct"] is False
     assert "previous task" in res["error"].lower()
+
+
+def test_challenge_accuracy_counts_completed_over_applicable(sample_session, db, monkeypatch):
+    monkeypatch.setattr(task_engine, "fetch_profile", lambda ip: (FULL_PROFILE, None))
+    done, total = task_engine.challenge_accuracy(db, sample_session)
+    assert done == 0 and total > 0
+
+    # Completing the first challenge raises the completed count by one.
+    task_engine.submit_answer(db, sample_session, "recon-telnet-port", "23")
+    done_after, total_after = task_engine.challenge_accuracy(db, sample_session)
+    assert done_after == 1 and total_after == total

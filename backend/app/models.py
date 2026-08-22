@@ -85,6 +85,22 @@ class ScanRun(Base):
     session = relationship("VaptSession", back_populates="scan_runs")
 
 
+class Feedback(Base):
+    """A post-session rating (1-5 stars) + optional suggestion, collected when
+    the student leaves the capstone for the summary. Kept independent of the
+    session (session_id is nullable and nulled, not cascaded, on session
+    delete) so feedback survives for the admin panel even if a session is
+    removed."""
+
+    __tablename__ = "feedback"
+
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(Integer, ForeignKey("sessions.id"), nullable=True)
+    rating = Column(Integer, nullable=False)  # 1-5
+    suggestion = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+
 class SessionState(Base):
     """Per-session UI progress so the guided flow survives a page reload.
 
