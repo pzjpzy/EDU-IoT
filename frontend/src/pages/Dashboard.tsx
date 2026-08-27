@@ -8,7 +8,7 @@ export default function Dashboard() {
   const navigate = useNavigate()
   const [sessions, setSessions] = useState<VaptSession[]>([])
   const [name, setName] = useState('')
-  const [targetIp, setTargetIp] = useState('127.0.0.1')
+  const [targetIp, setTargetIp] = useState('192.168.56.50')
   const [error, setError] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
 
@@ -65,7 +65,7 @@ export default function Dashboard() {
             <input
               value={targetIp}
               onChange={(e) => setTargetIp(e.target.value)}
-              placeholder="127.0.0.1"
+              placeholder="192.168.56.50"
               className="mt-1 w-full rounded-md border border-slate-600 bg-slate-900 px-3 py-2 text-slate-100"
             />
           </label>

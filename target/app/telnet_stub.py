@@ -32,6 +32,15 @@ VALID_CREDENTIALS = (
 FLAG_TELNET_LOGIN = "EDUVAPT{t3ln3t_d3f4ult_cr3d5}"
 
 IAC = 0xFF
+WILL = 0xFB
+OPT_ECHO = 0x01
+OPT_SGA = 0x03
+
+# Sent once at connect. "IAC WILL ECHO" tells the client the SERVER will echo,
+# so a real Telnet client (telnet.exe, PuTTY) turns OFF its own local echo -
+# otherwise every keystroke is echoed twice (aaddmmiinn / a*d*m*i*n). SGA
+# (suppress go-ahead) puts the session in the expected character-at-a-time mode.
+NEGOTIATE_SERVER_ECHO = bytes([IAC, WILL, OPT_ECHO, IAC, WILL, OPT_SGA])
 
 
 def read_line(conn: socket.socket, echo_char: bytes | None = None) -> str:
@@ -69,6 +78,7 @@ def read_line(conn: socket.socket, echo_char: bytes | None = None) -> str:
 def handle_client(conn: socket.socket) -> None:
     try:
         conn.settimeout(60)
+        conn.sendall(NEGOTIATE_SERVER_ECHO)
         conn.sendall(b"IoT-Cam Telnet CLI\r\nUsername: ")
         username = read_line(conn)
         conn.sendall(b"Password: ")

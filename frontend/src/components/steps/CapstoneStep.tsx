@@ -9,7 +9,7 @@ interface Props {
   onComplete: () => void
 }
 
-const DEFAULT_CAPSTONE_IP = '127.0.0.2'
+const DEFAULT_CAPSTONE_IP = '192.168.56.52'
 
 /**
  * The capstone challenge replaces the old post-session quiz. The student is

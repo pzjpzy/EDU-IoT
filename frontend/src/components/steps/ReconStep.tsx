@@ -138,9 +138,17 @@ export default function ReconStep({ sessionId, targetIp, explanation, onComplete
             </ul>
           </details>
 
+          {scan.open_ports.length === 0 && (
+            <p className="text-sm text-amber-400">
+              No open services were found, so there's nothing to assess yet. Check the target is running and
+              reachable, then re-run the scan before continuing.
+            </p>
+          )}
+
           <button
             onClick={onComplete}
-            className="rounded-md bg-sky-600 px-4 py-2 font-medium text-white hover:bg-sky-500"
+            disabled={scan.open_ports.length === 0}
+            className="rounded-md bg-sky-600 px-4 py-2 font-medium text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-sky-500"
           >
             Continue to Challenges
           </button>
