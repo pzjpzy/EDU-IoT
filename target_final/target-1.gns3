@@ -16,7 +16,44 @@
     "supplier": null,
     "topology": {
         "computes": [],
-        "drawings": [],
+        "drawings": [
+            {
+                "drawing_id": "fbf286d0-71ae-44c9-b589-d522957570c4",
+                "locked": false,
+                "rotation": 0,
+                "svg": "<svg width=\"614\" height=\"430\"><rect width=\"614\" height=\"430\" fill=\"#ffffff\" fill-opacity=\"1.0\" stroke-width=\"2\" stroke=\"#000000\" /></svg>",
+                "x": -331,
+                "y": -254,
+                "z": 0
+            },
+            {
+                "drawing_id": "52b3f1e9-4fb2-490e-bfbf-c9171c15e70a",
+                "locked": false,
+                "rotation": 0,
+                "svg": "<svg width=\"106\" height=\"24\"><text font-family=\"TypeWriter\" font-size=\"10.0\" font-weight=\"bold\" fill=\"#000000\" fill-opacity=\"1.0\">192.168.56.50 </text></svg>",
+                "x": -292,
+                "y": 102,
+                "z": 2
+            },
+            {
+                "drawing_id": "604c71ba-a1d8-4f2d-8a91-5a690241bc71",
+                "locked": false,
+                "rotation": 0,
+                "svg": "<svg width=\"106\" height=\"24\"><text font-family=\"TypeWriter\" font-size=\"10.0\" font-weight=\"bold\" fill=\"#000000\" fill-opacity=\"1.0\">192.168.56.51 </text></svg>",
+                "x": -81,
+                "y": 105,
+                "z": 2
+            },
+            {
+                "drawing_id": "141ad844-1057-4423-a43f-a0cb0445d48c",
+                "locked": false,
+                "rotation": 0,
+                "svg": "<svg width=\"102\" height=\"24\"><text font-family=\"TypeWriter\" font-size=\"10.0\" font-weight=\"bold\" fill=\"#000000\" fill-opacity=\"1.0\">192.168.56.52</text></svg>",
+                "x": 113,
+                "y": 108,
+                "z": 2
+            }
+        ],
         "links": [
             {
                 "filters": {},
@@ -56,7 +93,7 @@
             },
             {
                 "filters": {},
-                "link_id": "5e5f2edc-29eb-4754-82fa-042e773f8b7b",
+                "link_id": "7eebf035-ffdf-44cc-847a-6a3597ca4948",
                 "link_style": {
                     "color": "#000000",
                     "type": 1,
@@ -68,31 +105,31 @@
                         "label": {
                             "rotation": 0,
                             "style": "font-family: TypeWriter;font-size: 10.0;font-weight: bold;fill: #000000;fill-opacity: 1.0;",
-                            "text": "e1",
-                            "x": 15,
-                            "y": 50
+                            "text": "eth0",
+                            "x": 69,
+                            "y": -4
                         },
-                        "node_id": "4927afec-b3ea-48c8-ae02-07b852227072",
-                        "port_number": 1
+                        "node_id": "788146bf-a7c4-4502-874d-09b15b0fa257",
+                        "port_number": 0
                     },
                     {
                         "adapter_number": 0,
                         "label": {
                             "rotation": 0,
                             "style": "font-family: TypeWriter;font-size: 10.0;font-weight: bold;fill: #000000;fill-opacity: 1.0;",
-                            "text": "eth0",
-                            "x": 52,
-                            "y": -5
+                            "text": "e1",
+                            "x": 6,
+                            "y": 43
                         },
-                        "node_id": "6fcd3b75-9384-450b-983d-65c9ae766e30",
-                        "port_number": 0
+                        "node_id": "4927afec-b3ea-48c8-ae02-07b852227072",
+                        "port_number": 1
                     }
                 ],
                 "suspend": false
             },
             {
                 "filters": {},
-                "link_id": "11ae2a77-4605-46dd-8082-b4bd058dee88",
+                "link_id": "0c9d8cbb-228b-407d-8cf5-a2af534823ec",
                 "link_style": {
                     "color": "#000000",
                     "type": 1,
@@ -105,8 +142,8 @@
                             "rotation": 0,
                             "style": "font-family: TypeWriter;font-size: 10.0;font-weight: bold;fill: #000000;fill-opacity: 1.0;",
                             "text": "e2",
-                            "x": 66,
-                            "y": 41
+                            "x": 38,
+                            "y": 55
                         },
                         "node_id": "4927afec-b3ea-48c8-ae02-07b852227072",
                         "port_number": 2
@@ -117,10 +154,10 @@
                             "rotation": 0,
                             "style": "font-family: TypeWriter;font-size: 10.0;font-weight: bold;fill: #000000;fill-opacity: 1.0;",
                             "text": "eth0",
-                            "x": -5,
-                            "y": -2
+                            "x": 29,
+                            "y": -10
                         },
-                        "node_id": "fa1e8119-345d-4911-91a1-eb9af233a9d6",
+                        "node_id": "0e03409d-4d85-41ba-a696-11ab1cd5af6b",
                         "port_number": 0
                     }
                 ],
@@ -128,7 +165,7 @@
             },
             {
                 "filters": {},
-                "link_id": "d97bfdb5-13cf-43c9-9dff-5578cf101110",
+                "link_id": "c1e81c34-57a8-4c0d-8798-9cdd2f876459",
                 "link_style": {
                     "color": "#000000",
                     "type": 1,
@@ -140,24 +177,24 @@
                         "label": {
                             "rotation": 0,
                             "style": "font-family: TypeWriter;font-size: 10.0;font-weight: bold;fill: #000000;fill-opacity: 1.0;",
-                            "text": "e3",
-                            "x": 72,
-                            "y": 31
+                            "text": "eth0",
+                            "x": -1,
+                            "y": -7
                         },
-                        "node_id": "4927afec-b3ea-48c8-ae02-07b852227072",
-                        "port_number": 3
+                        "node_id": "1a883e64-33d2-4a60-800c-2c3c384f66a2",
+                        "port_number": 0
                     },
                     {
                         "adapter_number": 0,
                         "label": {
                             "rotation": 0,
                             "style": "font-family: TypeWriter;font-size: 10.0;font-weight: bold;fill: #000000;fill-opacity: 1.0;",
-                            "text": "eth0",
-                            "x": -4,
-                            "y": 14
+                            "text": "e3",
+                            "x": 62,
+                            "y": 45
                         },
-                        "node_id": "6651afb3-83c3-4194-972a-ee3b1c4ea2a7",
-                        "port_number": 0
+                        "node_id": "4927afec-b3ea-48c8-ae02-07b852227072",
+                        "port_number": 3
                     }
                 ],
                 "suspend": false
@@ -237,92 +274,6 @@
                 "width": 159,
                 "x": -120,
                 "y": -210,
-                "z": 1
-            },
-            {
-                "compute_id": "vm",
-                "console": 5003,
-                "console_auto_start": false,
-                "console_type": "telnet",
-                "custom_adapters": [],
-                "first_port_name": null,
-                "height": 59,
-                "label": {
-                    "rotation": 0,
-                    "style": "font-family: TypeWriter;font-size: 10.0;font-weight: bold;fill: #000000;fill-opacity: 1.0;",
-                    "text": "eduvapt-camera-1",
-                    "x": -31,
-                    "y": -25
-                },
-                "locked": false,
-                "name": "eduvapt-camera-1",
-                "node_id": "6fcd3b75-9384-450b-983d-65c9ae766e30",
-                "node_type": "docker",
-                "port_name_format": "Ethernet{0}",
-                "port_segment_size": 0,
-                "properties": {
-                    "adapters": 1,
-                    "aux": 5004,
-                    "console_http_path": "/",
-                    "console_http_port": 80,
-                    "console_resolution": "1024x768",
-                    "container_id": "d548684aaf5afee581ccdd01d1e07a1196235d26c300b8400e16f71404bf45c1",
-                    "environment": "",
-                    "extra_hosts": "",
-                    "extra_volumes": [],
-                    "image": "eduvapt-camera:latest",
-                    "mac_address": "02:42:dd:93:8d:00",
-                    "start_command": null,
-                    "usage": ""
-                },
-                "symbol": ":/symbols/docker_guest.svg",
-                "template_id": "d815fef0-5005-4101-ba69-62a2ce6484e6",
-                "width": 65,
-                "x": -138,
-                "y": 9,
-                "z": 1
-            },
-            {
-                "compute_id": "vm",
-                "console": 5001,
-                "console_auto_start": false,
-                "console_type": "telnet",
-                "custom_adapters": [],
-                "first_port_name": null,
-                "height": 59,
-                "label": {
-                    "rotation": 0,
-                    "style": "font-family: TypeWriter;font-size: 10.0;font-weight: bold;fill: #000000;fill-opacity: 1.0;",
-                    "text": "eduvapt-camera-hardened-1",
-                    "x": -65,
-                    "y": -25
-                },
-                "locked": false,
-                "name": "eduvapt-camera-hardened-1",
-                "node_id": "fa1e8119-345d-4911-91a1-eb9af233a9d6",
-                "node_type": "docker",
-                "port_name_format": "Ethernet{0}",
-                "port_segment_size": 0,
-                "properties": {
-                    "adapters": 1,
-                    "aux": 5002,
-                    "console_http_path": "/",
-                    "console_http_port": 80,
-                    "console_resolution": "1024x768",
-                    "container_id": "d6711ecd6e984215c8b85b00abb486d7b63a574d4d20ab710944253e58f3acec",
-                    "environment": "EDUVAPT_HTTP_DEFAULT_CREDS=false\nEDUVAPT_SNAPSHOT_UNAUTH=false\nEDUVAPT_TELNET_ENABLED=true\nEDUVAPT_TELNET_DEFAULT_CREDS=true\nEDUVAPT_RTSP_ENABLED=false",
-                    "extra_hosts": "",
-                    "extra_volumes": [],
-                    "image": "eduvapt-camera:latest",
-                    "mac_address": "02:42:1e:81:19:00",
-                    "start_command": null,
-                    "usage": ""
-                },
-                "symbol": ":/symbols/docker_guest.svg",
-                "template_id": "5927e753-8e8d-4fc3-ac33-efa23f93cb20",
-                "width": 65,
-                "x": 31,
-                "y": -8,
                 "z": 1
             },
             {
@@ -407,7 +358,50 @@
             },
             {
                 "compute_id": "vm",
-                "console": 5006,
+                "console": 5001,
+                "console_auto_start": false,
+                "console_type": "telnet",
+                "custom_adapters": [],
+                "first_port_name": null,
+                "height": 59,
+                "label": {
+                    "rotation": 0,
+                    "style": "font-family: TypeWriter;font-size: 10.0;font-weight: bold;fill: #000000;fill-opacity: 1.0;",
+                    "text": "eduvapt-camera-1",
+                    "x": -31,
+                    "y": -25
+                },
+                "locked": false,
+                "name": "eduvapt-camera-1",
+                "node_id": "788146bf-a7c4-4502-874d-09b15b0fa257",
+                "node_type": "docker",
+                "port_name_format": "Ethernet{0}",
+                "port_segment_size": 0,
+                "properties": {
+                    "adapters": 1,
+                    "aux": 5002,
+                    "console_http_path": "/",
+                    "console_http_port": 80,
+                    "console_resolution": "1024x768",
+                    "container_id": "ce5036fbbfa1f1224c14d568bb2ed702322988976a3bdaf6cde2f0576abcf35e",
+                    "environment": null,
+                    "extra_hosts": null,
+                    "extra_volumes": [],
+                    "image": "eduvapt-camera:latest",
+                    "mac_address": "02:42:81:46:bf:00",
+                    "start_command": null,
+                    "usage": ""
+                },
+                "symbol": ":/symbols/docker_guest.svg",
+                "template_id": "d815fef0-5005-4101-ba69-62a2ce6484e6",
+                "width": 65,
+                "x": -268,
+                "y": 35,
+                "z": 1
+            },
+            {
+                "compute_id": "vm",
+                "console": 5003,
                 "console_auto_start": false,
                 "console_type": "telnet",
                 "custom_adapters": [],
@@ -417,12 +411,55 @@
                     "rotation": 0,
                     "style": "font-family: TypeWriter;font-size: 10.0;font-weight: bold;fill: #000000;fill-opacity: 1.0;",
                     "text": "capstonecamera-1",
-                    "x": -31,
-                    "y": -25
+                    "x": -12,
+                    "y": -26
                 },
                 "locked": false,
                 "name": "capstonecamera-1",
-                "node_id": "6651afb3-83c3-4194-972a-ee3b1c4ea2a7",
+                "node_id": "1a883e64-33d2-4a60-800c-2c3c384f66a2",
+                "node_type": "docker",
+                "port_name_format": "Ethernet{0}",
+                "port_segment_size": 0,
+                "properties": {
+                    "adapters": 1,
+                    "aux": 5004,
+                    "console_http_path": "/",
+                    "console_http_port": 80,
+                    "console_resolution": "1024x768",
+                    "container_id": "bd577449e540f5a22bd49889bbbaa4c6dcc001dc17f3850f9151444525850e0f",
+                    "environment": "EDUVAPT_HTTP_DEFAULT_CREDS=false\nEDUVAPT_SNAPSHOT_UNAUTH=true\nEDUVAPT_TELNET_ENABLED=true\nEDUVAPT_TELNET_DEFAULT_CREDS=true\nEDUVAPT_RTSP_ENABLED=true",
+                    "extra_hosts": null,
+                    "extra_volumes": [],
+                    "image": "eduvapt-camera:latest",
+                    "mac_address": "02:42:88:3e:64:00",
+                    "start_command": null,
+                    "usage": ""
+                },
+                "symbol": ":/symbols/docker_guest.svg",
+                "template_id": "89afe28a-346c-4ed8-9bff-e48f7fc2bc81",
+                "width": 65,
+                "x": 134,
+                "y": 41,
+                "z": 1
+            },
+            {
+                "compute_id": "vm",
+                "console": 5006,
+                "console_auto_start": false,
+                "console_type": "telnet",
+                "custom_adapters": [],
+                "first_port_name": null,
+                "height": 59,
+                "label": {
+                    "rotation": 0,
+                    "style": "font-family: TypeWriter;font-size: 10.0;font-weight: bold;fill: #000000;fill-opacity: 1.0;",
+                    "text": "eduvapt-camera-hardened-1",
+                    "x": -65,
+                    "y": -25
+                },
+                "locked": false,
+                "name": "eduvapt-camera-hardened-1",
+                "node_id": "0e03409d-4d85-41ba-a696-11ab1cd5af6b",
                 "node_type": "docker",
                 "port_name_format": "Ethernet{0}",
                 "port_segment_size": 0,
@@ -432,20 +469,20 @@
                     "console_http_path": "/",
                     "console_http_port": 80,
                     "console_resolution": "1024x768",
-                    "container_id": "74496faf49a0b6dfbbf2b63dbff23413e7701277da8b97afdeb2fa127eceb512",
-                    "environment": "EDUVAPT_HTTP_DEFAULT_CREDS=false\nEDUVAPT_SNAPSHOT_UNAUTH=true\nEDUVAPT_TELNET_ENABLED=true\nEDUVAPT_TELNET_DEFAULT_CREDS=true\nEDUVAPT_RTSP_ENABLED=true",
+                    "container_id": "4c955dcbf07d3e9a152521974ce4ac24eaa44bc0622f691aa9b10cc8e24343fd",
+                    "environment": "EDUVAPT_HTTP_DEFAULT_CREDS=false\nEDUVAPT_SNAPSHOT_UNAUTH=false\nEDUVAPT_TELNET_ENABLED=true\nEDUVAPT_TELNET_DEFAULT_CREDS=true\nEDUVAPT_RTSP_ENABLED=false",
                     "extra_hosts": null,
                     "extra_volumes": [],
                     "image": "eduvapt-camera:latest",
-                    "mac_address": "02:42:51:af:b3:00",
+                    "mac_address": "02:42:03:40:9d:00",
                     "start_command": null,
                     "usage": ""
                 },
                 "symbol": ":/symbols/docker_guest.svg",
-                "template_id": "89afe28a-346c-4ed8-9bff-e48f7fc2bc81",
+                "template_id": "5927e753-8e8d-4fc3-ac33-efa23f93cb20",
                 "width": 65,
-                "x": 140,
-                "y": -10,
+                "x": -59,
+                "y": 39,
                 "z": 1
             }
         ]
@@ -453,5 +490,5 @@
     "type": "topology",
     "variables": null,
     "version": "2.2.60",
-    "zoom": 100
+    "zoom": 84
 }
